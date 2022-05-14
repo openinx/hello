@@ -1,5 +1,4 @@
 
-#[warn(dead_code)]
 pub fn is_prime(n: u32) -> bool {
     if n == 1 {
         return false;
