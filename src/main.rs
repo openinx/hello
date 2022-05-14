@@ -2,6 +2,7 @@ use std::io;
 
 mod sum;
 mod prime;
+mod qsort;
 
 fn main() {
     println!("Hello, world!");
