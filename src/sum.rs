@@ -1,6 +1,4 @@
 
-pub fn for_loop(){
-    for n in 1..100 {
-        println!("{}", n);
-    }
+pub fn sum(a: usize, b: usize) -> usize {
+    a + b
 }
