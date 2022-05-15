@@ -1,6 +1,16 @@
 
-fn qsort(vec: &mut[i32]) {
-    // do nothing.
+
+fn _sort_(v: &mut[i32], l: i32, r: i32) {
+    if l >= r {
+        return;
+    }
+
+    let mid = (l + r) >> 1;
+}
+
+fn qsort(v: &mut[i32]) {
+    // TODO: implement this method.
+    println!("{:?}", v);
 }
 
 #[cfg(test)]
