@@ -4,6 +4,7 @@ mod sum;
 mod prime;
 mod qsort;
 mod msort;
+mod heapsort;
 
 fn main() {
     println!("Hello, world!");
@@ -18,6 +19,10 @@ fn main() {
     vec = vec![3, 2, 1];
     msort::merge_sort(&mut vec);
     println!("Mergesort result is: {:?}", vec);
+
+    vec = vec![3, 2, 1];
+    heapsort::sort(&mut vec);
+    println!("Heap sort result is: {:?}", vec);
 
     // Prompt
     let mut guess: String = String::new();
