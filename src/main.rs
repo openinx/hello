@@ -6,6 +6,7 @@ mod qsort;
 mod msort;
 mod heapsort;
 mod linked_list_v1;
+mod linked_list_v2;
 
 fn main() {
     println!("Hello, world!");
@@ -25,9 +26,15 @@ fn main() {
     heapsort::sort(&mut vec);
     println!("Heap sort result is: {:?}", vec);
 
-    let mut list = linked_list_v1::List::new();
-    list.push(1);
-    println!("LinkedList pop() is: {}", list.pop().unwrap());
+    let mut list1 = linked_list_v1::List::new();
+    list1.push(1);
+    println!("LinkedList v1 pop() is: {}", list1.pop().unwrap());
+
+    let mut list2 = linked_list_v2::List::new();
+    list2.push(1);
+    println!("LinkedList v2 peek() is: {}", list2.peek().unwrap());
+    println!("LinkedList v2 pop() is: {}", list2.pop().unwrap());
+    println!("LinkedList v2 is_empty() is: {}", list2.is_empty());
 
     // Prompt
     let mut guess: String = String::new();
