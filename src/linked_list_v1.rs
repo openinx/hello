@@ -2,29 +2,28 @@
  * Linked list v1.
  * Referece to https://rust-unofficial.github.io/too-many-lists/first-final.html
  */
-
 use std::mem;
 
-pub struct List{
-    head: Link
+pub struct List {
+    head: Link,
 }
 
-enum Link{
+enum Link {
     Empty,
-    More(Box<Node>)
+    More(Box<Node>),
 }
 
-struct Node{
+struct Node {
     elem: i32,
     next: Link,
 }
 
 impl List {
-    pub fn new() -> Self{
-        List{ head: Link::Empty }
+    pub fn new() -> Self {
+        List { head: Link::Empty }
     }
 
-    pub fn push(&mut self, elem: i32){
+    pub fn push(&mut self, elem: i32) {
         let new_node = Box::new(Node {
             elem: elem,
             next: mem::replace(&mut self.head, Link::Empty),
@@ -34,7 +33,7 @@ impl List {
     }
 
     pub fn pop(&mut self) -> Option<i32> {
-        // Rust cannot assign referece to borrowed &self.head. So here we use 
+        // Rust cannot assign referece to borrowed &self.head. So here we use
         // mem.replace to get a reference copy.
         match mem::replace(&mut self.head, Link::Empty) {
             Link::Empty => None,
@@ -47,11 +46,11 @@ impl List {
 }
 
 #[cfg(test)]
-mod tests{
+mod tests {
     use super::List;
 
     #[test]
-    pub fn basics(){
+    pub fn basics() {
         let mut list = List::new();
         assert_eq!(list.pop(), None);
 
@@ -65,7 +64,7 @@ mod tests{
             list.push(i);
         }
         for i in 0..=9 {
-            assert_eq!(list.pop().unwrap(), 9-i);
+            assert_eq!(list.pop().unwrap(), 9 - i);
         }
         assert_eq!(list.pop(), None);
     }
