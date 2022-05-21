@@ -11,6 +11,7 @@ mod prime;
 mod qsort;
 mod rust_star;
 mod sum;
+mod unsafe_queue;
 
 fn main() {
     println!("Hello, world!");
