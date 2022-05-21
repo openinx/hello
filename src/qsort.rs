@@ -1,5 +1,4 @@
-
-fn _sort_(v: &mut[i32], l: usize, r: usize) {
+fn _sort_(v: &mut [i32], l: usize, r: usize) {
     let mut i = l;
     let x = v[r];
     for j in l..r {
@@ -11,26 +10,26 @@ fn _sort_(v: &mut[i32], l: usize, r: usize) {
     v.swap(i, r);
 
     if l < i {
-        _sort_(v, l, i-1);
+        _sort_(v, l, i - 1);
     }
     if i < r {
-        _sort_(v, i+1, r);
+        _sort_(v, i + 1, r);
     }
 }
 
-pub fn qsort(v: &mut[i32]) {
-    if v.len() <= 1{
+pub fn qsort(v: &mut [i32]) {
+    if v.len() <= 1 {
         return;
     }
     _sort_(v, 0, v.len() - 1);
 }
 
 #[cfg(test)]
-mod tests{
+mod tests {
     use super::qsort;
 
     #[test]
-    pub fn test_qsort(){
+    pub fn test_qsort() {
         let mut vec = vec![1, 2, 3];
         qsort(&mut vec);
         assert_eq!(vec, [1, 2, 3]);

@@ -1,20 +1,20 @@
 use std::{io, vec};
 
-mod sum;
-mod prime;
-mod qsort;
-mod msort;
+mod deref_example;
 mod heapsort;
 mod linked_list_v1;
 mod linked_list_v2;
 mod linked_list_v3;
+mod msort;
+mod prime;
+mod qsort;
 mod rust_star;
-mod deref_example;
+mod sum;
 
 fn main() {
     println!("Hello, world!");
 
-    println!("Sum of 2 + 3 is: {}" , sum::sum(2, 3));
+    println!("Sum of 2 + 3 is: {}", sum::sum(2, 3));
     println!("23 is primary ? answer: {}", prime::is_prime(23));
 
     let mut vec = vec![2, 4, 5, 3];
@@ -41,13 +41,12 @@ fn main() {
 
     rust_star::test_start();
 
-
     // Prompt
     let mut guess: String = String::new();
 
     io::stdin()
         .read_line(&mut guess)
         .expect("Failed to readline");
-    
+
     println!("You guessed: {}", guess);
 }

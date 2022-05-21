@@ -1,12 +1,12 @@
 // Merge sort for an integer array.
-fn _msort(v: &mut[i32], l: usize, r: usize) {
+fn _msort(v: &mut [i32], l: usize, r: usize) {
     if l >= r {
         return;
     }
 
     let m = (l + r) >> 1;
     _msort(v, l, m);
-    _msort(v, m +1, r);
+    _msort(v, m + 1, r);
 
     // Temporary array to cache the whole merge sorted elements.
     let mut w = Vec::with_capacity(r + 1 - l);
@@ -38,18 +38,18 @@ fn _msort(v: &mut[i32], l: usize, r: usize) {
     }
 }
 
-pub fn merge_sort(v: &mut[i32]){
+pub fn merge_sort(v: &mut [i32]) {
     if v.len() > 1 {
         _msort(v, 0, v.len() - 1);
     }
 }
 
 #[cfg(test)]
-mod tests{
+mod tests {
     use super::*;
 
     #[test]
-    pub fn test_msort(){
+    pub fn test_msort() {
         let mut vec = vec![];
         merge_sort(&mut vec);
         assert_eq!(vec, vec![]);

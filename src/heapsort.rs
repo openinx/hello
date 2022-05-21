@@ -1,9 +1,8 @@
-
-fn _fixup(h: &mut[i32], len: usize) {
+fn _fixup(h: &mut [i32], len: usize) {
     let mut c = len; // child index.
     while c > 0 {
         // Parent index.
-        let p = (c -1) >> 1;
+        let p = (c - 1) >> 1;
         if h[c] < h[p] {
             h.swap(c, p);
             c = p;
@@ -13,7 +12,7 @@ fn _fixup(h: &mut[i32], len: usize) {
     }
 }
 
-fn _fixdown(h: &mut[i32], len: usize){
+fn _fixdown(h: &mut [i32], len: usize) {
     if len > 1 {
         h.swap(0, len - 1);
 
@@ -35,8 +34,7 @@ fn _fixdown(h: &mut[i32], len: usize){
     }
 }
 
-
-pub fn sort(v: &mut[i32]) {
+pub fn sort(v: &mut [i32]) {
     let mut h = Vec::with_capacity(v.len());
 
     for i in 0..v.len() {
@@ -51,11 +49,11 @@ pub fn sort(v: &mut[i32]) {
 }
 
 #[cfg(test)]
-mod tests{
+mod tests {
     use super::*;
 
     #[test]
-    pub fn test_sort(){
+    pub fn test_sort() {
         let mut v = vec![];
         sort(&mut v);
         assert_eq!(v, vec![]);
