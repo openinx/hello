@@ -1,5 +1,6 @@
 use std::{io, vec};
 
+mod dequeue_v1;
 mod deref_example;
 mod heapsort;
 mod linked_list_v1;
