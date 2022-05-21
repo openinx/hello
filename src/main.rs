@@ -7,6 +7,9 @@ mod msort;
 mod heapsort;
 mod linked_list_v1;
 mod linked_list_v2;
+mod linked_list_v3;
+mod rust_star;
+mod deref_example;
 
 fn main() {
     println!("Hello, world!");
@@ -35,6 +38,9 @@ fn main() {
     println!("LinkedList v2 peek() is: {}", list2.peek().unwrap());
     println!("LinkedList v2 pop() is: {}", list2.pop().unwrap());
     println!("LinkedList v2 is_empty() is: {}", list2.is_empty());
+
+    rust_star::test_start();
+
 
     // Prompt
     let mut guess: String = String::new();
