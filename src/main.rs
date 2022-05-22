@@ -1,9 +1,9 @@
 use std::{io, vec};
 
-mod dequeue_v1;
 mod deref_example;
-mod double_linked_list;
+mod double_linked_list_v1;
 mod double_linked_list_v2;
+mod double_linked_list_v3;
 mod heapsort;
 mod linked_list_v1;
 mod linked_list_v2;
