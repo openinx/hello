@@ -8,6 +8,7 @@ mod heapsort;
 mod linked_list_v1;
 mod linked_list_v2;
 mod linked_list_v3;
+mod merge_linkedlist;
 mod msort;
 mod prime;
 mod qsort;
