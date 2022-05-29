@@ -20,8 +20,7 @@ impl<K, V> HashTable<K, V> {
         }
     }
 
-    pub fn put(&mut self, key: K, val: V) {
-    }
+    pub fn put(&mut self, key: K, val: V) {}
 
     pub fn find(&mut self, key: K) -> Option<V> {
         None
