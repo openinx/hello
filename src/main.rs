@@ -1,5 +1,6 @@
 use std::{io, vec};
 
+mod cmp;
 mod deref_example;
 mod double_linked_list_v1;
 mod double_linked_list_v2;
