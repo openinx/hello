@@ -15,6 +15,7 @@ mod msort;
 mod prime;
 mod qsort;
 mod rust_star;
+mod select_sort;
 mod sum;
 mod unsafe_dequeue;
 mod unsafe_queue;
