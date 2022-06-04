@@ -1,5 +1,9 @@
+pub trait Key: Eq {
+    fn hash(&self) -> i64;
+}
+
 pub struct HashTable<K, V> {
-    size: i32,
+    size: usize,
     buckets: Vec<Bucket<K, V>>,
 }
 
@@ -12,7 +16,10 @@ struct Bucket<K, V> {
     elems: Vec<Tuple<K, V>>,
 }
 
-impl<K, V> HashTable<K, V> {
+impl<K, V> HashTable<K, V>
+where
+    K: Key,
+{
     pub fn new() -> HashTable<K, V> {
         HashTable {
             size: 0,
@@ -20,7 +27,15 @@ impl<K, V> HashTable<K, V> {
         }
     }
 
-    pub fn put(&mut self, key: K, val: V) {}
+    fn bucket_idx(&self, key: &K) -> usize {
+        let hash_code = key.hash();
+        let bucket_size = self.buckets.len() as i64;
+        ((hash_code % bucket_size + bucket_size) % bucket_size) as usize
+    }
+
+    pub fn put(&mut self, key: K, val: V) {
+        todo!()
+    }
 
     pub fn find(&mut self, key: K) -> Option<V> {
         None
@@ -30,12 +45,12 @@ impl<K, V> HashTable<K, V> {
         None
     }
 
-    pub fn size(&self) -> i32 {
+    pub fn length(&self) -> i32 {
         0
     }
 
     pub fn is_empty(&self) -> bool {
-        self.size() == 0
+        self.size == 0
     }
 }
 
@@ -44,10 +59,5 @@ mod tests {
     use super::*;
 
     #[test]
-    pub fn basics() {
-        let mut hash = HashTable::new();
-
-        hash.put(1, 2);
-        hash.size();
-    }
+    pub fn basics() {}
 }
