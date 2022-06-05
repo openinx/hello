@@ -1,5 +1,6 @@
 use std::{io, vec};
 
+mod binary_tree;
 mod cmp;
 mod deref_example;
 mod double_linked_list_v1;
