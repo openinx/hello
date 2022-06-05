@@ -1,6 +1,5 @@
 use std::{io, vec};
 
-mod binary_tree;
 mod cmp;
 mod deref_example;
 mod double_linked_list_v1;
@@ -17,6 +16,7 @@ mod prime;
 mod qsort;
 mod rust_star;
 mod select_sort;
+mod simple_tree;
 mod sum;
 mod unsafe_dequeue;
 mod unsafe_queue;
