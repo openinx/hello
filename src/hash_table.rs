@@ -38,8 +38,7 @@ where
         }
     }
 
-    fn get_mut(&mut self, key: &K) -> Option<&mut V> {
-        let bucket_id = index(self.buckets.capacity(), key);
+    fn get_mut(&mut self, bucket_id: usize, key: &K) -> Option<&mut V> {
         let bucket = &mut self.buckets[bucket_id];
 
         for t in bucket {
@@ -70,7 +69,7 @@ where
     pub fn put(&mut self, key: K, val: V) {
         let bucket_id = index(self.buckets.capacity(), &key);
 
-        match self.get_mut(&key) {
+        match self.get_mut(bucket_id, &key) {
             Some(old_val) => *old_val = val,
             None => {
                 let bucket = &mut self.buckets[bucket_id];
@@ -80,7 +79,7 @@ where
                 self.size += 1;
 
                 // Extend the buckets if possible.
-                if self.size >= self.buckets.len() * 2 {
+                if self.size >= self.buckets.len() >> 1 {
                     self.extend();
                 }
             }
