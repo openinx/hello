@@ -64,6 +64,38 @@ where
         }
     }
 
+    pub fn max(&self) -> Option<&T> {
+        let mut cur = &self.root;
+        loop {
+            match cur {
+                None => return None,
+                Some(node) => {
+                    if node.r.is_none() {
+                        return Some(&node.elem);
+                    } else {
+                        cur = &node.r;
+                    }
+                }
+            }
+        }
+    }
+
+    pub fn min(&self) -> Option<&T> {
+        let mut cur = &self.root;
+        loop {
+            match cur {
+                None => return None,
+                Some(node) => {
+                    if node.l.is_none() {
+                        return Some(&node.elem);
+                    } else {
+                        cur = &node.l;
+                    }
+                }
+            }
+        }
+    }
+
     pub fn size(&self) -> usize {
         self.size
     }
@@ -103,18 +135,24 @@ mod tests {
         assert_eq!(tree.find(2), None);
         assert_eq!(tree.find(3), None);
         assert_eq!(tree.size(), 1);
+        assert_eq!(tree.max(), Some(&1));
+        assert_eq!(tree.min(), Some(&1));
 
         tree.insert(2);
         assert_eq!(tree.find(1), Some(&1));
         assert_eq!(tree.find(2), Some(&2));
         assert_eq!(tree.find(3), None);
         assert_eq!(tree.size(), 2);
+        assert_eq!(tree.max(), Some(&2));
+        assert_eq!(tree.min(), Some(&1));
 
         tree.insert(3);
         assert_eq!(tree.find(1), Some(&1));
         assert_eq!(tree.find(2), Some(&2));
         assert_eq!(tree.find(3), Some(&3));
         assert_eq!(tree.size(), 3);
+        assert_eq!(tree.max(), Some(&3));
+        assert_eq!(tree.min(), Some(&1));
     }
 
     #[test]
@@ -124,6 +162,8 @@ mod tests {
         for i in 0..10000 {
             tree.insert(i);
             assert_eq!(tree.find(i), Some(&i));
+            assert_eq!(tree.min(), Some(&0));
+            assert_eq!(tree.max(), Some(&i));
             assert_eq!(tree.size(), (i + 1) as usize);
         }
     }
