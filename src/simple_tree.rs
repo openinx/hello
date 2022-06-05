@@ -3,6 +3,10 @@ pub struct SimpleTree<T: Ord> {
     root: Option<Box<Node<T>>>,
 }
 
+pub struct Iter<'a, T: Ord> {
+    stack: Vec<&'a Node<T>>,
+}
+
 struct Node<T: Ord> {
     elem: T,
     l: Option<Box<Node<T>>>,
@@ -96,8 +100,53 @@ where
         }
     }
 
+    pub fn iter<'a>(&'a self) -> Iter<'a, T> {
+        let mut stack = Vec::new();
+        let mut cur = &self.root;
+
+        while cur.is_some() {
+            stack.push(cur.as_deref().unwrap());
+            cur = &cur.as_deref().unwrap().l;
+        }
+
+        Iter { stack }
+    }
+
     pub fn size(&self) -> usize {
         self.size
+    }
+}
+
+impl<'a, T> Iter<'a, T>
+where
+    T: Ord,
+{
+    fn next(&mut self) -> Option<&'a T> {
+        match self.stack.pop() {
+            None => return None,
+            Some(node) => {
+                if node.r.is_some() {
+                    // Push node.r and all left children of node.r into the stack.
+                    let mut cur = &node.r;
+                    while cur.is_some() {
+                        self.stack.push(cur.as_deref().unwrap());
+                        cur = &cur.as_deref().unwrap().l;
+                    }
+                }
+                return Some(&node.elem);
+            }
+        };
+    }
+}
+
+impl<'a, T> Iterator for Iter<'a, T>
+where
+    T: Ord,
+{
+    type Item = &'a T;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        self.next()
     }
 }
 
@@ -153,6 +202,45 @@ mod tests {
         assert_eq!(tree.size(), 3);
         assert_eq!(tree.max(), Some(&3));
         assert_eq!(tree.min(), Some(&1));
+    }
+
+    #[test]
+    pub fn test_iter() {
+        let mut tree = SimpleTree::new();
+
+        tree.insert(3);
+        tree.insert(1);
+        tree.insert(2);
+        tree.insert(-1);
+        tree.insert(5);
+        tree.insert(4);
+
+        {
+            let mut iter = tree.iter();
+            assert_eq!(iter.next(), Some(&-1));
+            assert_eq!(iter.next(), Some(&1));
+            assert_eq!(iter.next(), Some(&2));
+            assert_eq!(iter.next(), Some(&3));
+            assert_eq!(iter.next(), Some(&4));
+            assert_eq!(iter.next(), Some(&5));
+            assert_eq!(iter.next(), None);
+        }
+
+        tree.insert(-2);
+        tree.insert(9);
+
+        {
+            let mut iter = tree.iter();
+            assert_eq!(iter.next(), Some(&-2));
+            assert_eq!(iter.next(), Some(&-1));
+            assert_eq!(iter.next(), Some(&1));
+            assert_eq!(iter.next(), Some(&2));
+            assert_eq!(iter.next(), Some(&3));
+            assert_eq!(iter.next(), Some(&4));
+            assert_eq!(iter.next(), Some(&5));
+            assert_eq!(iter.next(), Some(&9));
+            assert_eq!(iter.next(), None);
+        }
     }
 
     #[test]
