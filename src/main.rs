@@ -6,6 +6,7 @@ mod double_linked_list_v1;
 mod double_linked_list_v2;
 mod double_linked_list_v3;
 mod hash_table;
+mod hash_table_v2;
 mod heapsort;
 mod linked_list_v1;
 mod linked_list_v2;
