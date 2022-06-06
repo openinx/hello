@@ -1,3 +1,4 @@
+use std::cmp;
 pub struct SimpleTree<T: Ord> {
     size: usize,
     root: Option<Box<Node<T>>>,
@@ -98,6 +99,17 @@ where
                 }
             }
         }
+    }
+
+    fn _height(&self, ptr: &Option<Box<Node<T>>>) -> usize {
+        match ptr.as_deref() {
+            None => 0,
+            Some(node) => cmp::max(self._height(&node.l), self._height(&node.r)) + 1,
+        }
+    }
+
+    pub fn height(&self) -> usize {
+        self._height(&self.root)
     }
 
     // Get the precursor element of the given element.
@@ -209,6 +221,7 @@ mod tests {
         assert_eq!(tree.size(), 1);
         assert_eq!(tree.max(), Some(&1));
         assert_eq!(tree.min(), Some(&1));
+        assert_eq!(tree.height(), 1);
 
         tree.insert(2);
         assert_eq!(tree.find(1), Some(&1));
@@ -217,6 +230,7 @@ mod tests {
         assert_eq!(tree.size(), 2);
         assert_eq!(tree.max(), Some(&2));
         assert_eq!(tree.min(), Some(&1));
+        assert_eq!(tree.height(), 2);
 
         tree.insert(3);
         assert_eq!(tree.find(1), Some(&1));
@@ -225,6 +239,7 @@ mod tests {
         assert_eq!(tree.size(), 3);
         assert_eq!(tree.max(), Some(&3));
         assert_eq!(tree.min(), Some(&1));
+        assert_eq!(tree.height(), 3);
     }
 
     #[test]
@@ -239,6 +254,7 @@ mod tests {
         tree.insert(8);
         tree.insert(7);
 
+        assert_eq!(tree.height(), 4);
         assert_eq!(tree.prec(-1), None);
         assert_eq!(tree.succ(-1), Some(&1));
 
@@ -315,6 +331,7 @@ mod tests {
 
         for i in 0..10000 {
             tree.insert(i);
+            assert_eq!(tree.height(), i + 1);
             assert_eq!(tree.find(i), Some(&i));
             assert_eq!(tree.min(), Some(&0));
             assert_eq!(tree.max(), Some(&i));
