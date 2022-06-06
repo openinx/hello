@@ -100,6 +100,29 @@ where
         }
     }
 
+    // Get the precursor element of the given element.
+    pub fn prec(&self, elem: T) -> Option<&T> {
+        let mut iter = self.iter();
+        let mut prec = None;
+        while let Some(cur) = iter.next() {
+            if *cur < elem {
+                prec = Some(cur);
+            }
+        }
+        prec
+    }
+
+    // Get the succeed element of the given element.
+    pub fn succ(&self, elem: T) -> Option<&T> {
+        let mut iter = self.iter();
+        while let Some(cur) = iter.next() {
+            if *cur > elem {
+                return Some(cur);
+            }
+        }
+        return None;
+    }
+
     pub fn iter<'a>(&'a self) -> Iter<'a, T> {
         let mut stack = Vec::new();
         let mut cur = &self.root;
@@ -202,6 +225,49 @@ mod tests {
         assert_eq!(tree.size(), 3);
         assert_eq!(tree.max(), Some(&3));
         assert_eq!(tree.min(), Some(&1));
+    }
+
+    #[test]
+    pub fn test_prec_succ() {
+        let mut tree = SimpleTree::new();
+
+        tree.insert(6);
+        tree.insert(3);
+        tree.insert(1);
+        tree.insert(4);
+        tree.insert(5);
+        tree.insert(8);
+        tree.insert(7);
+
+        assert_eq!(tree.prec(-1), None);
+        assert_eq!(tree.succ(-1), Some(&1));
+
+        assert_eq!(tree.prec(1), None);
+        assert_eq!(tree.succ(1), Some(&3));
+
+        assert_eq!(tree.prec(2), Some(&1));
+        assert_eq!(tree.succ(2), Some(&3));
+
+        assert_eq!(tree.prec(3), Some(&1));
+        assert_eq!(tree.succ(3), Some(&4));
+
+        assert_eq!(tree.prec(4), Some(&3));
+        assert_eq!(tree.succ(4), Some(&5));
+
+        assert_eq!(tree.prec(5), Some(&4));
+        assert_eq!(tree.succ(5), Some(&6));
+
+        assert_eq!(tree.prec(6), Some(&5));
+        assert_eq!(tree.succ(6), Some(&7));
+
+        assert_eq!(tree.prec(7), Some(&6));
+        assert_eq!(tree.succ(7), Some(&8));
+
+        assert_eq!(tree.prec(8), Some(&7));
+        assert_eq!(tree.succ(8), None);
+
+        assert_eq!(tree.prec(9), Some(&8));
+        assert_eq!(tree.succ(9), None);
     }
 
     #[test]
