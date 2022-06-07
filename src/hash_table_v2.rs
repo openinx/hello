@@ -93,7 +93,15 @@ where
     }
 
     pub fn get(&self, key: K) -> Option<&V> {
-        todo!()
+        let h = hash(self.bucket_num(), &key);
+        let mut ptr = &self.buckets[h];
+        while let Some(node) = ptr.as_deref() {
+            if node.key == key {
+                return Some(&node.val);
+            }
+            ptr = &node.next;
+        }
+        None
     }
 
     pub fn remove(&mut self, key: K) -> Option<V> {
@@ -106,6 +114,20 @@ where
             cur: &None,
         }
     }
+
+    pub fn size(&self) -> usize {
+        self.size
+    }
+}
+
+impl Hash for String {
+    fn hash(&self) -> i64 {
+        let mut ret = 0 as i64;
+        for c in self.bytes() {
+            ret = (ret << 5) + ret + (c as i64);
+        }
+        ret
+    }
 }
 
 #[cfg(test)]
@@ -113,5 +135,15 @@ mod tests {
     use super::*;
 
     #[test]
-    pub fn basics() {}
+    pub fn basics() {
+        let mut hashMap = HashMap::new();
+        hashMap.put("ABC".to_string(), 1);
+        hashMap.put("DEF".to_string(), 2);
+        hashMap.put("HIG".to_string(), 3);
+
+        assert_eq!(hashMap.size(), 3);
+        assert_eq!(hashMap.get("ABC".to_string()), Some(&1));
+        assert_eq!(hashMap.get("DEF".to_string()), Some(&2));
+        assert_eq!(hashMap.get("HIG".to_string()), Some(&3));
+    }
 }
