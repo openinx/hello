@@ -53,6 +53,24 @@ where
         return None;
     }
 
+    fn get_prev(&mut self, key: &K) -> (bool, Option<&mut Node<K,V>>) {
+        let h = hash(self.bucket_num(), key);
+        let mut cur = &mut self.buckets[h];
+        let mut is_head = true;
+        while let Some(node) = cur.as_deref_mut() {
+            if node.key == *key {
+                if is_head {
+                    return (true, None);
+                } else {
+                    return (true, Some(node));
+                }
+            }
+            is_head = false;
+            cur = &mut node.next;
+        }
+        (false, None)
+    }
+
     fn rehash(&mut self) {
         let mut buckets: Vec<Ptr<K, V>> = (0..self.bucket_num() * 2).map(|_| None).collect();
         for h in 0..self.bucket_num() {
@@ -113,7 +131,14 @@ where
     }
 
     pub fn remove(&mut self, key: K) -> Option<V> {
-        todo!()
+        let (find, ret) = self.get_prev(&key);
+        None
+        // match ret {
+        //     None => return None,
+        //     Some(node) => {
+        //         *node = node.next.take();
+        //     }
+        // }
     }
 
     pub fn iter<'a>(&'a self) -> Iter<'a, K, V> {
