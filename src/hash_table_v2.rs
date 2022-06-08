@@ -1,9 +1,9 @@
-pub trait Hash: Eq {
+pub trait Hash: Eq + Clone {
     fn hash(&self) -> i64;
 }
 
 // Use linked list to handle the hash conflicts for the same bucket.
-pub struct HashMap<K: Hash, V> {
+pub struct HashMap<K: Hash, V: Clone> {
     size: usize,
     buckets: Vec<Ptr<K, V>>,
 }
@@ -28,6 +28,7 @@ fn hash<K: Hash>(bucket_num: usize, key: &K) -> usize {
 impl<K, V> HashMap<K, V>
 where
     K: Hash,
+    V: Clone,
 {
     pub fn new() -> Self {
         HashMap {
@@ -53,17 +54,24 @@ where
     }
 
     fn rehash(&mut self) {
-        // let mut buckets: Vec<Ptr<K, V>> = (0..self.bucket_num()*2).map(|_| None).collect();
-        // for h in 0..self.bucket_num() {
-        //     let mut ptr = &mut self.buckets[h];
-        //     while let Some(node) = ptr.as_deref_mut() {
-        //         let h = hash(buckets.capacity(), &node.key);
-        //         ptr = &mut node.next.take();
+        let mut buckets: Vec<Ptr<K, V>> = (0..self.bucket_num() * 2).map(|_| None).collect();
+        for h in 0..self.bucket_num() {
+            let mut ptr = &mut self.buckets[h];
+            while let Some(node) = ptr.as_deref_mut() {
+                let h = hash(buckets.capacity(), &node.key);
 
-        //         node.next = buckets[h].take();
-        //         buckets[h] = Some(Box::new(*node));
-        //     }
-        // }
+                // TODO Don't clone the key value for better performance.
+                buckets[h] = Some(Box::new(Node {
+                    key: node.key.clone(),
+                    val: node.val.clone(),
+                    next: buckets[h].take(),
+                }));
+
+                ptr = &mut node.next;
+            }
+        }
+
+        self.buckets = buckets;
     }
 
     pub fn put(&mut self, key: K, val: V) {
@@ -145,5 +153,16 @@ mod tests {
         assert_eq!(hashMap.get("ABC".to_string()), Some(&1));
         assert_eq!(hashMap.get("DEF".to_string()), Some(&2));
         assert_eq!(hashMap.get("HIG".to_string()), Some(&3));
+    }
+
+    #[test]
+    pub fn insert_many_strings() {
+        let mut map = HashMap::new();
+
+        for i in 0..100000 {
+            map.put(i.to_string(), i.to_string());
+            assert_eq!(map.get(i.to_string()), Some(&i.to_string()));
+            assert_eq!(map.size(), (i + 1) as usize);
+        }
     }
 }
