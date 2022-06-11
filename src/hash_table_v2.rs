@@ -1,3 +1,4 @@
+use std::time::Instant;
 pub trait Hash: Eq + Clone {
     fn hash(&self) -> i64;
 }
@@ -41,18 +42,6 @@ where
         return self.buckets.capacity();
     }
 
-    fn get_mut(&mut self, key: &K) -> Option<&mut Node<K, V>> {
-        let h = hash(self.bucket_num(), key);
-        let mut ptr = &mut self.buckets[h];
-        while let Some(node) = ptr.as_deref_mut() {
-            if node.key == *key {
-                return Some(node);
-            }
-            ptr = &mut node.next;
-        }
-        return None;
-    }
-
     fn rehash(&mut self) {
         let mut buckets: Vec<Ptr<K, V>> = (0..self.bucket_num() * 2).map(|_| None).collect();
         for h in 0..self.bucket_num() {
@@ -77,20 +66,29 @@ where
     pub fn put(&mut self, key: K, val: V) {
         let h = hash(self.bucket_num(), &key);
 
-        match self.get_mut(&key) {
-            None => {
-                self.buckets[h] = Some(Box::new(Node {
-                    key,
-                    val,
-                    next: self.buckets[h].take(),
-                }));
-                self.size += 1;
-            }
-            Some(node) => {
-                *node = Node {
-                    key,
-                    val,
-                    next: node.next.take(),
+        let mut cur = &mut self.buckets[h];
+        loop {
+            match cur {
+                None => {
+                    *cur = Some(Box::new(Node {
+                        key,
+                        val,
+                        next: None,
+                    }));
+                    self.size += 1;
+                    break;
+                }
+                Some(node) if node.key == key => {
+                    *node = Box::new(Node {
+                        key,
+                        val,
+                        next: node.next.take(),
+                    });
+                    self.size += 1;
+                    break;
+                }
+                Some(node) => {
+                    cur = &mut node.next;
                 }
             }
         }
@@ -103,7 +101,7 @@ where
     pub fn get(&self, key: K) -> Option<&V> {
         let h = hash(self.bucket_num(), &key);
         let mut ptr = &self.buckets[h];
-        while let Some(node) = ptr.as_deref() {
+        while let Some(node) = ptr {
             if node.key == key {
                 return Some(&node.val);
             }
@@ -186,15 +184,20 @@ mod tests {
     pub fn insert_many_strings() {
         let mut map = HashMap::new();
 
-        for i in 0..100000 {
+        let now = Instant::now();
+        let n = 1000_000;
+
+        for i in 0..n {
             map.put(i.to_string(), i.to_string());
             assert_eq!(map.get(i.to_string()), Some(&i.to_string()));
             assert_eq!(map.size(), (i + 1) as usize);
         }
 
-        for i in 0..100000 {
+        for i in 0..n {
             assert_eq!(map.remove(i.to_string()), Some(i.to_string()));
-            assert_eq!(map.size(), 100000 - 1 - i);
+            assert_eq!(map.size(), n - 1 - i);
         }
+
+        println!("Time elapsed: {} millis", now.elapsed().as_millis());
     }
 }
