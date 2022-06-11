@@ -53,12 +53,13 @@ where
         return None;
     }
 
-    fn get_prev(&mut self, key: &K) -> (bool, Option<&mut Node<K,V>>) {
+    fn get_prev(&mut self, key: &K) -> (bool, Option<&mut Node<K, V>>) {
         let h = hash(self.bucket_num(), key);
         let mut cur = &mut self.buckets[h];
         let mut is_head = true;
         while let Some(node) = cur.as_deref_mut() {
             if node.key == *key {
+                self.size -= 1;
                 if is_head {
                     return (true, None);
                 } else {
@@ -131,14 +132,31 @@ where
     }
 
     pub fn remove(&mut self, key: K) -> Option<V> {
+        // Accessing the immutable ref before borrowing mutable ref is OK
+        let h = hash(self.buckets.capacity(), &key);
         let (find, ret) = self.get_prev(&key);
-        None
-        // match ret {
-        //     None => return None,
-        //     Some(node) => {
-        //         *node = node.next.take();
-        //     }
-        // }
+        if find {
+            match ret {
+                None => {
+                    let mut ptr = self.buckets[h].take();
+                    ptr.as_deref_mut().map(|node| {
+                        self.buckets[h] = node.next.take();
+                        // TODO don't use node.clone here.
+                        node.val.clone()
+                    })
+                }
+                Some(prev) => {
+                    let mut ptr = prev.next.take();
+                    ptr.as_deref_mut().map(|node| {
+                        prev.next = node.next.take();
+                        // TODO don't use node.clone here.
+                        node.val.clone()
+                    })
+                }
+            }
+        } else {
+            return None;
+        }
     }
 
     pub fn iter<'a>(&'a self) -> Iter<'a, K, V> {
@@ -169,15 +187,24 @@ mod tests {
 
     #[test]
     pub fn basics() {
-        let mut hashMap = HashMap::new();
-        hashMap.put("ABC".to_string(), 1);
-        hashMap.put("DEF".to_string(), 2);
-        hashMap.put("HIG".to_string(), 3);
+        let mut map = HashMap::new();
+        map.put("ABC".to_string(), 1);
+        map.put("DEF".to_string(), 2);
+        map.put("HIG".to_string(), 3);
 
-        assert_eq!(hashMap.size(), 3);
-        assert_eq!(hashMap.get("ABC".to_string()), Some(&1));
-        assert_eq!(hashMap.get("DEF".to_string()), Some(&2));
-        assert_eq!(hashMap.get("HIG".to_string()), Some(&3));
+        assert_eq!(map.size(), 3);
+        assert_eq!(map.get("ABC".to_string()), Some(&1));
+        assert_eq!(map.get("DEF".to_string()), Some(&2));
+        assert_eq!(map.get("HIG".to_string()), Some(&3));
+
+        assert_eq!(map.remove("ABC".to_string()), Some(1));
+        assert_eq!(map.size(), 2);
+
+        assert_eq!(map.remove("DEF".to_string()), Some(2));
+        assert_eq!(map.size(), 1);
+
+        assert_eq!(map.remove("HIG".to_string()), Some(3));
+        assert_eq!(map.size(), 0);
     }
 
     #[test]
@@ -188,6 +215,11 @@ mod tests {
             map.put(i.to_string(), i.to_string());
             assert_eq!(map.get(i.to_string()), Some(&i.to_string()));
             assert_eq!(map.size(), (i + 1) as usize);
+        }
+
+        for i in 0..100000 {
+            assert_eq!(map.remove(i.to_string()), Some(i.to_string()));
+            assert_eq!(map.size(), 100000 - 1 - i);
         }
     }
 }
