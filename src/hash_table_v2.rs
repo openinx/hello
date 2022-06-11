@@ -53,25 +53,6 @@ where
         return None;
     }
 
-    fn get_prev(&mut self, key: &K) -> (bool, Option<&mut Node<K, V>>) {
-        let h = hash(self.bucket_num(), key);
-        let mut cur = &mut self.buckets[h];
-        let mut is_head = true;
-        while let Some(node) = cur.as_deref_mut() {
-            if node.key == *key {
-                self.size -= 1;
-                if is_head {
-                    return (true, None);
-                } else {
-                    return (true, Some(node));
-                }
-            }
-            is_head = false;
-            cur = &mut node.next;
-        }
-        (false, None)
-    }
-
     fn rehash(&mut self) {
         let mut buckets: Vec<Ptr<K, V>> = (0..self.bucket_num() * 2).map(|_| None).collect();
         for h in 0..self.bucket_num() {
@@ -134,28 +115,22 @@ where
     pub fn remove(&mut self, key: K) -> Option<V> {
         // Accessing the immutable ref before borrowing mutable ref is OK
         let h = hash(self.buckets.capacity(), &key);
-        let (find, ret) = self.get_prev(&key);
-        if find {
-            match ret {
-                None => {
-                    let mut ptr = self.buckets[h].take();
-                    ptr.as_deref_mut().map(|node| {
-                        self.buckets[h] = node.next.take();
-                        // TODO don't use node.clone here.
-                        node.val.clone()
-                    })
+        let mut cur = &mut self.buckets[h];
+        loop {
+            match cur {
+                None => return None,
+                Some(node) if node.key == key => {
+                    // TODO don't use the clone here.
+                    let val = node.val.clone();
+                    *cur = node.next.take();
+                    self.size -= 1;
+
+                    return Some(val);
                 }
-                Some(prev) => {
-                    let mut ptr = prev.next.take();
-                    ptr.as_deref_mut().map(|node| {
-                        prev.next = node.next.take();
-                        // TODO don't use node.clone here.
-                        node.val.clone()
-                    })
+                Some(node) => {
+                    cur = &mut node.next;
                 }
             }
-        } else {
-            return None;
         }
     }
 
