@@ -1,8 +1,10 @@
 use std::cmp;
 pub struct SimpleTree<T: Ord> {
     size: usize,
-    root: Option<Box<Node<T>>>,
+    root: Link<T>,
 }
+
+type Link<T> = Option<Box<Node<T>>>;
 
 pub struct Iter<'a, T: Ord> {
     stack: Vec<&'a Node<T>>,
@@ -10,8 +12,8 @@ pub struct Iter<'a, T: Ord> {
 
 struct Node<T: Ord> {
     elem: T,
-    l: Option<Box<Node<T>>>,
-    r: Option<Box<Node<T>>>,
+    l: Link<T>,
+    r: Link<T>,
 }
 
 impl<T> SimpleTree<T>
@@ -51,10 +53,31 @@ where
         }
     }
 
+    // Take the precursor of the p's elem, which is similar to the Option.take().
+    fn take_prec(p: &mut Option<Box<Node<T>>>) -> Option<T> {
+        // The parent of the right most child in the left-side of target node.
+        let mut cur = &mut p.as_deref_mut().unwrap().l;
+
+        // cur will be the parent of the right most child.
+        while !cur.as_deref().unwrap().r.is_none()
+            && !cur.as_deref().unwrap().r.as_deref().unwrap().r.is_none()
+        {
+            cur = &mut cur.as_deref_mut().unwrap().r;
+        }
+
+        // Left tree of the right most child.
+        let r_most = &mut cur.as_deref_mut().unwrap().r;
+        let l_subtree = r_most.as_deref_mut().unwrap().l.take();
+        r_most.take().map(|r_most_node| {
+            *r_most = l_subtree;
+            r_most_node.elem
+        })
+    }
+
     // Delete help methods
     fn delete_node(p: &mut Option<Box<Node<T>>>) {
+        // Case#1: Handle the nil-left child and nil-right child.
         {
-            // Handle the nil-left child and nil-right child.
             match p {
                 None => return,
                 Some(node) if node.r.is_none() => {
@@ -69,33 +92,32 @@ where
             }
         }
 
-        /*
-        let mut s = &mut p.as_mut().unwrap().l;
-        let mut q = p;
-        let mut any_rchild = false;
-        while let Some(sn) = &mut s.as_mut().unwrap().r {
-            q = s;
-            s = &mut sn.r;
-            any_rchild = true;
+        // Case#2: The right child of the left child is NULL.
+        {
+            let l = &mut p.as_mut().unwrap().l;
+            if l.as_deref().unwrap().r.is_none() {
+                l.take().map(|node| {
+                    p.as_mut().unwrap().elem = node.elem;
+                });
+                return;
+            }
         }
 
-        if any_rchild {
-            let t = s.unwrap().l.take();
-            *p = s.take();
-            *s = t;
-        } else {
-            *s = s.unwrap().l.take();
+        // Case#3: Replace the target node with its precursor.
+        {
+            SimpleTree::take_prec(p).map(|elem| {
+                p.as_mut().unwrap().elem = elem;
+            });
         }
-        */
     }
 
     fn inter_delete(ptr: &mut Option<Box<Node<T>>>, elem: T) -> bool {
         match ptr {
             None => false,
             Some(node) => {
-                if node.elem < elem {
+                if elem < node.elem {
                     return SimpleTree::inter_delete(&mut node.l, elem);
-                } else if node.elem == elem {
+                } else if elem == node.elem {
                     SimpleTree::delete_node(ptr);
                     return true;
                 } else {
@@ -106,7 +128,12 @@ where
     }
 
     pub fn delete(&mut self, elem: T) -> bool {
-        return SimpleTree::inter_delete(&mut self.root, elem);
+        if SimpleTree::inter_delete(&mut self.root, elem) {
+            self.size -= 1;
+            return true;
+        } else {
+            return false;
+        }
     }
 
     pub fn find(&self, elem: T) -> Option<&T> {
@@ -298,6 +325,74 @@ mod tests {
         assert_eq!(tree.max(), Some(&3));
         assert_eq!(tree.min(), Some(&1));
         assert_eq!(tree.height(), 3);
+
+        assert_eq!(tree.delete(1), true);
+        assert_eq!(tree.find(1), None);
+        assert_eq!(tree.find(2), Some(&2));
+        assert_eq!(tree.find(3), Some(&3));
+        assert_eq!(tree.size(), 2);
+        assert_eq!(tree.max(), Some(&3));
+        assert_eq!(tree.min(), Some(&2));
+        assert_eq!(tree.height(), 2);
+
+        assert_eq!(tree.delete(2), true);
+        assert_eq!(tree.find(1), None);
+        assert_eq!(tree.find(2), None);
+        assert_eq!(tree.find(3), Some(&3));
+        assert_eq!(tree.size(), 1);
+        assert_eq!(tree.max(), Some(&3));
+        assert_eq!(tree.min(), Some(&3));
+        assert_eq!(tree.height(), 1);
+
+        assert_eq!(tree.delete(3), true);
+        assert_eq!(tree.find(1), None);
+        assert_eq!(tree.find(2), None);
+        assert_eq!(tree.find(3), None);
+        assert_eq!(tree.size(), 0);
+        assert_eq!(tree.max(), None);
+        assert_eq!(tree.min(), None);
+        assert_eq!(tree.height(), 0);
+    }
+
+    #[test]
+    pub fn test_delete() {
+        let mut tree = SimpleTree::new();
+
+        tree.insert(6);
+        tree.insert(3);
+        tree.insert(1);
+        tree.insert(4);
+        tree.insert(5);
+        tree.insert(8);
+        tree.insert(7);
+
+        assert_eq!(tree.delete(3), true);
+        assert_eq!(tree.find(3), None);
+        assert_eq!(tree.height(), 4);
+
+        assert_eq!(tree.delete(6), true);
+        assert_eq!(tree.find(6), None);
+        assert_eq!(tree.height(), 3);
+
+        assert_eq!(tree.delete(5), true);
+        assert_eq!(tree.find(5), None);
+        assert_eq!(tree.height(), 3);
+
+        assert_eq!(tree.delete(7), true);
+        assert_eq!(tree.find(7), None);
+        assert_eq!(tree.height(), 2);
+
+        assert_eq!(tree.delete(8), true);
+        assert_eq!(tree.find(8), None);
+        assert_eq!(tree.height(), 2);
+
+        assert_eq!(tree.delete(4), true);
+        assert_eq!(tree.find(4), None);
+        assert_eq!(tree.height(), 1);
+
+        assert_eq!(tree.delete(1), true);
+        assert_eq!(tree.find(1), None);
+        assert_eq!(tree.height(), 0);
     }
 
     #[test]
