@@ -51,6 +51,64 @@ where
         }
     }
 
+    // Delete help methods
+    fn delete_node(p: &mut Option<Box<Node<T>>>) {
+        {
+            // Handle the nil-left child and nil-right child.
+            match p {
+                None => return,
+                Some(node) if node.r.is_none() => {
+                    *p = node.l.take();
+                    return;
+                }
+                Some(node) if node.l.is_none() => {
+                    *p = node.r.take();
+                    return;
+                }
+                _ => {}
+            }
+        }
+
+        /*
+        let mut s = &mut p.as_mut().unwrap().l;
+        let mut q = p;
+        let mut any_rchild = false;
+        while let Some(sn) = &mut s.as_mut().unwrap().r {
+            q = s;
+            s = &mut sn.r;
+            any_rchild = true;
+        }
+
+        if any_rchild {
+            let t = s.unwrap().l.take();
+            *p = s.take();
+            *s = t;
+        } else {
+            *s = s.unwrap().l.take();
+        }
+        */
+    }
+
+    fn inter_delete(ptr: &mut Option<Box<Node<T>>>, elem: T) -> bool {
+        match ptr {
+            None => false,
+            Some(node) => {
+                if node.elem < elem {
+                    return SimpleTree::inter_delete(&mut node.l, elem);
+                } else if node.elem == elem {
+                    SimpleTree::delete_node(ptr);
+                    return true;
+                } else {
+                    return SimpleTree::inter_delete(&mut node.r, elem);
+                }
+            }
+        }
+    }
+
+    pub fn delete(&mut self, elem: T) -> bool {
+        return SimpleTree::inter_delete(&mut self.root, elem);
+    }
+
     pub fn find(&self, elem: T) -> Option<&T> {
         let mut cur = &self.root;
         loop {
