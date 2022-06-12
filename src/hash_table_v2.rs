@@ -1,9 +1,9 @@
-pub trait Hash: Eq + Clone {
+pub trait Hash: Eq {
     fn hash(&self) -> i64;
 }
 
 // Use linked list to handle the hash conflicts for the same bucket.
-pub struct HashMap<K: Hash, V: Clone> {
+pub struct HashMap<K: Hash, V> {
     size: usize,
     buckets: Vec<Ptr<K, V>>,
 }
@@ -28,7 +28,6 @@ fn hash<K: Hash>(bucket_num: usize, key: &K) -> usize {
 impl<K, V> HashMap<K, V>
 where
     K: Hash,
-    V: Clone,
 {
     pub fn new() -> Self {
         HashMap {
@@ -44,18 +43,19 @@ where
     fn rehash(&mut self) {
         let mut buckets: Vec<Ptr<K, V>> = (0..self.bucket_num() << 1).map(|_| None).collect();
         for h in 0..self.bucket_num() {
-            let mut ptr = &self.buckets[h];
-            while let Some(node) = ptr {
+            let ptr = &mut self.buckets[h];
+
+            // Great! Because I've estimated the key and vlaue clone in this body successfully.
+            while let Some(node) = ptr.take() {
                 let h = hash(buckets.capacity(), &node.key);
 
-                // TODO Don't clone the key value for better performance.
                 buckets[h] = Some(Box::new(Node {
-                    key: node.key.clone(),
-                    val: node.val.clone(),
+                    key: node.key,
+                    val: node.val,
                     next: buckets[h].take(),
                 }));
 
-                ptr = &node.next;
+                *ptr = node.next;
             }
         }
 
@@ -109,25 +109,32 @@ where
         None
     }
 
-    pub fn remove(&mut self, key: K) -> Option<V> {
-        // Accessing the immutable ref before borrowing mutable ref is OK
+    pub fn get_mut(&mut self, key: K) -> Option<&mut Ptr<K, V>> {
         let h = hash(self.buckets.capacity(), &key);
         let mut cur = &mut self.buckets[h];
         loop {
-            match cur {
-                None => return None,
-                Some(node) if node.key == key => {
-                    // TODO don't use the clone here.
-                    let val = node.val.clone();
-                    *cur = node.next.take();
-                    self.size -= 1;
-
-                    return Some(val);
-                }
-                Some(node) => {
-                    cur = &mut node.next;
-                }
+            if cur.is_none() {
+                return None;
+            } else if cur.as_deref().unwrap().key == key {
+                return Some(cur);
             }
+            cur = &mut cur.as_deref_mut().unwrap().next;
+        }
+    }
+
+    pub fn remove(&mut self, key: K) -> Option<V> {
+        let ptr = self.get_mut(key);
+        let ret = ptr.map(|cur| {
+            cur.take().map(|node| {
+                *cur = node.next;
+                node.val
+            })
+        });
+        if ret.is_some() && ret.as_ref().unwrap().is_some() {
+            self.size -= 1;
+            return Some(ret.unwrap().unwrap());
+        } else {
+            None
         }
     }
 
