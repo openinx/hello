@@ -16,8 +16,9 @@ pub struct Node<K: Hash, V> {
 }
 
 pub struct Iter<'a, K: Hash, V> {
-    index: usize,
-    cur: &'a Ptr<K, V>,
+    buckets: Vec<&'a Ptr<K, V>>,
+    h: usize,           // Bucket index.
+    cur: &'a Ptr<K, V>, // The current iterator.
 }
 
 fn hash<K: Hash>(bucket_num: usize, key: &K) -> usize {
@@ -140,13 +141,43 @@ where
 
     pub fn iter<'a>(&'a self) -> Iter<'a, K, V> {
         Iter {
-            index: 0,
-            cur: &None,
+            buckets: (0..self.bucket_num()).map(|i| &self.buckets[i]).collect(),
+            h: 0,
+            cur: &self.buckets[0],
         }
     }
 
     pub fn size(&self) -> usize {
         self.size
+    }
+}
+
+impl<'a, K, V> Iter<'a, K, V>
+where
+    K: Hash,
+{
+    pub fn next(&mut self) -> Option<&'a Node<K, V>> {
+        loop {
+            // Exhaust the current bucket.
+            if let Some(node) = self.cur {
+                self.cur = &node.next;
+                return Some(node);
+            }
+
+            // Switch to the next bucket.
+            self.h += 1;
+            if self.h >= self.buckets.capacity() {
+                return None;
+            } else {
+                self.cur = self.buckets[self.h];
+            }
+        }
+    }
+}
+
+impl Hash for i32 {
+    fn hash(&self) -> i64 {
+        *self as i64
     }
 }
 
@@ -185,6 +216,53 @@ mod tests {
 
         assert_eq!(map.remove("HIG".to_string()), Some(3));
         assert_eq!(map.size(), 0);
+    }
+
+    #[test]
+    pub fn test_iter() {
+        let mut map = HashMap::new();
+        let n = 100_000;
+        for i in 0..n {
+            map.put(i, i);
+            assert_eq!(map.get(i), Some(&i));
+            assert_eq!(map.size(), (i + 1) as usize);
+        }
+
+        {
+            let mut iter = map.iter();
+            let mut hit = vec![false; n as usize];
+            while let Some(node) = iter.next() {
+                let k = node.key as usize;
+                let v = node.val as usize;
+
+                assert_eq!(k, v);
+                assert_eq!(hit[k], false);
+                assert_eq!(hit[v], false);
+                hit[k] = true;
+            }
+
+            assert_eq!(hit, vec![true; n as usize]);
+        }
+
+        for i in 100..n {
+            assert_eq!(map.remove(i), Some(i));
+        }
+
+        {
+            let mut iter = map.iter();
+            let mut hit = vec![false; 100];
+            while let Some(node) = iter.next() {
+                let k = node.key as usize;
+                let v = node.val as usize;
+
+                assert_eq!(k, v);
+                assert_eq!(hit[k], false);
+                assert_eq!(hit[v], false);
+                hit[k] = true;
+            }
+
+            assert_eq!(hit, vec![true; 100 as usize]);
+        }
     }
 
     #[test]
