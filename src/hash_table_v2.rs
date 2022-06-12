@@ -109,7 +109,7 @@ where
         None
     }
 
-    pub fn get_mut(&mut self, key: K) -> Option<&mut Ptr<K, V>> {
+    pub fn get_mut_ptr(&mut self, key: K) -> Option<&mut Ptr<K, V>> {
         let h = hash(self.buckets.capacity(), &key);
         let mut cur = &mut self.buckets[h];
         loop {
@@ -123,19 +123,19 @@ where
     }
 
     pub fn remove(&mut self, key: K) -> Option<V> {
-        let ptr = self.get_mut(key);
-        let ret = ptr.map(|cur| {
+        let mut ret: Option<V> = None;
+        let ptr = self.get_mut_ptr(key);
+        ptr.map(|cur| {
             cur.take().map(|node| {
                 *cur = node.next;
-                node.val
+                ret = Some(node.val);
             })
         });
-        if ret.is_some() && ret.as_ref().unwrap().is_some() {
+
+        ret.map(|v| {
             self.size -= 1;
-            return Some(ret.unwrap().unwrap());
-        } else {
-            None
-        }
+            v
+        })
     }
 
     pub fn iter<'a>(&'a self) -> Iter<'a, K, V> {
