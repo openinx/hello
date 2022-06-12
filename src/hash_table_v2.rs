@@ -1,4 +1,3 @@
-use std::time::Instant;
 pub trait Hash: Eq + Clone {
     fn hash(&self) -> i64;
 }
@@ -43,10 +42,10 @@ where
     }
 
     fn rehash(&mut self) {
-        let mut buckets: Vec<Ptr<K, V>> = (0..self.bucket_num() * 2).map(|_| None).collect();
+        let mut buckets: Vec<Ptr<K, V>> = (0..self.bucket_num() << 1).map(|_| None).collect();
         for h in 0..self.bucket_num() {
-            let mut ptr = &mut self.buckets[h];
-            while let Some(node) = ptr.as_deref_mut() {
+            let mut ptr = &self.buckets[h];
+            while let Some(node) = ptr {
                 let h = hash(buckets.capacity(), &node.key);
 
                 // TODO Don't clone the key value for better performance.
@@ -56,7 +55,7 @@ where
                     next: buckets[h].take(),
                 }));
 
-                ptr = &mut node.next;
+                ptr = &node.next;
             }
         }
 
@@ -93,7 +92,7 @@ where
             }
         }
 
-        if self.size >= self.bucket_num() * 2 {
+        if self.size >= self.bucket_num() << 1 {
             self.rehash();
         }
     }
@@ -157,6 +156,7 @@ impl Hash for String {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use std::time::Instant;
 
     #[test]
     pub fn basics() {
