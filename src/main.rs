@@ -19,6 +19,7 @@ mod qsort;
 mod rust_star;
 mod select_sort;
 mod simple_tree;
+mod skiplist;
 mod sum;
 mod unsafe_dequeue;
 mod unsafe_queue;
