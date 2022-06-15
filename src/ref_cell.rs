@@ -1,0 +1,26 @@
+#[cfg(test)]
+mod tests {
+    use std::cell::{RefCell, RefMut};
+    use std::collections::HashMap;
+    use std::rc::Rc;
+
+    #[test]
+    pub fn test() {
+        let shared_map: Rc<RefCell<HashMap<&str, i32>>> = Rc::new(RefCell::new(HashMap::new()));
+        // Create a new block to limit the scope of the dynamic borrow
+        {
+            let mut map: RefMut<_> = shared_map.borrow_mut();
+            map.insert("africa", 92388);
+            map.insert("kyoto", 11837);
+            map.insert("piccadilly", 11826);
+            map.insert("marbles", 38);
+        }
+
+        // Note that if we had not let the previous borrow of the cache fall out
+        // of scope then the subsequent borrow would cause a dynamic thread panic.
+        // This is the major hazard of using `RefCell`.
+
+        let total: i32 = shared_map.borrow().values().sum();
+        assert_eq!(116089, total);
+    }
+}

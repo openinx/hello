@@ -102,11 +102,20 @@ impl<T: Display> Display for List<T> {
     }
 }
 
-fn main() {
-    let mut list = List::new();
-    println!("{}", list);
-    for i in 0..5 {
-        list.append(i);
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    pub fn basics() {
+        let mut list = List::new();
+
+        assert_eq!("[]", format!("{}", list));
+
+        for i in 0..5 {
+            list.append(i);
+        }
+
+        assert_eq!("[0, 1, 2, 3, 4]", format!("{}", list));
     }
-    println!("{}", list);
 }

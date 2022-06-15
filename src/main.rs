@@ -17,6 +17,7 @@ mod merge_linkedlist;
 mod msort;
 mod prime;
 mod qsort;
+mod ref_cell;
 mod rust_star;
 mod select_sort;
 mod simple_tree;
