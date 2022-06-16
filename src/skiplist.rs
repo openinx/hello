@@ -82,12 +82,12 @@ where
         std::cmp::min(level, 16)
     }
 
-    fn get_prec(&mut self, mut ptr: Link<K, V>, level: usize, k: &K) -> Link<K, V> {
+    fn get_prec(&self, mut ptr: Link<K, V>, level: usize, k: &K) -> Link<K, V> {
         while let Some(node) = ptr.clone() {
             let mut is_prec = false;
             match node.borrow().forward[level].as_ref() {
                 None => is_prec = true,
-                Some(next) if k < next.borrow().key() => {
+                Some(next) if k <= next.borrow().key() => {
                     is_prec = true;
                 }
                 _ => {}
@@ -176,7 +176,46 @@ where
     }
 
     pub fn delete(&mut self, k: K) -> Option<V> {
-        todo!()
+        let mut ptr = self.head.clone();
+        for i in (0..self.level).rev() {
+            // Iterate to find the correct key in the leve-i.
+            while let Some(node) = ptr.clone() {
+                let mut prev_mut_ref = node.borrow_mut();
+                match prev_mut_ref.forward[i].clone() {
+                    None => {
+                        // Don't have more key in this level-i.
+                        break;
+                    }
+                    Some(next) => {
+                        let mut next_mut_ref = next.borrow_mut();
+                        match Ord::cmp(&k, next_mut_ref.key()) {
+                            Ordering::Less => {
+                                // Cann't find the key in current level! Let's just goto the next level.
+                                break;
+                            }
+                            Ordering::Equal => {
+                                prev_mut_ref.forward[i].take().map(|_| {
+                                    prev_mut_ref.forward[i] = next_mut_ref.forward[i].take();
+                                });
+
+                                // Find the correct key value in currect level.
+                                if i <= 0 {
+                                    self.size -= 1;
+                                    return Some(next_mut_ref.val().clone());
+                                }
+                            }
+                            Ordering::Greater => {
+                                // Iterate to the next key in current level.
+                                ptr = prev_mut_ref.forward[i].clone();
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        // The target key is not existing in the collection.
+        None
     }
 
     pub fn size(&self) -> usize {
@@ -260,8 +299,6 @@ mod tests {
         let mut data: Vec<usize> = (0..max).collect();
         data.shuffle(&mut rng);
 
-        println!("Start get & put");
-
         for i in 0..max {
             assert_eq!(sorted_map.get(data[i]), None);
 
@@ -271,13 +308,9 @@ mod tests {
             assert_eq!(sorted_map.size(), i + 1);
         }
 
-        println!("Start get all the elements");
-
         for i in 0..max {
             assert_eq!(sorted_map.get(data[i]), Some(data[i]));
         }
-
-        println!("Start to iterate the collection");
 
         let mut iter = sorted_map.iter();
         for i in 0..max {
@@ -292,6 +325,47 @@ mod tests {
     }
 
     #[test]
+    pub fn test_delete() {
+        let mut sorted_map = SkipList::new();
+        let mut rng = rand::thread_rng();
+        let max = 1000_0 as usize;
+        let mut data: Vec<usize> = (0..max).collect();
+        data.shuffle(&mut rng);
+
+        for i in 0..max {
+            sorted_map.put(data[i], data[i]);
+            assert_eq!(sorted_map.get(data[i]), Some(data[i]));
+            assert_eq!(sorted_map.size(), i + 1);
+        }
+
+        {
+            let mut hit = vec![false; max];
+            let mut iter = sorted_map.iter();
+            while let Some(e) = iter.next() {
+                assert_eq!(e.k, e.v);
+                assert_eq!(hit[e.k], false);
+                hit[e.k] = true;
+            }
+
+            assert_eq!(hit, vec![true; max]);
+        }
+
+        for i in 0..max {
+            assert_eq!(sorted_map.delete(data[i]), Some(data[i]));
+            assert_eq!(sorted_map.get(data[i]), None);
+            assert_eq!(sorted_map.size(), max - 1 - i);
+        }
+
+        {
+            let mut iter = sorted_map.iter();
+            while let Some(_) = iter.next() {
+                panic!("Expect to have no elements in this collection.");
+            }
+            assert_eq!(0, sorted_map.size());
+        }
+    }
+
+    #[test]
     pub fn test_debug() {
         let mut sorted_map = SkipList::new();
         assert_eq!("[]", format!("{}", sorted_map));
@@ -299,6 +373,24 @@ mod tests {
         sorted_map.put("A", 3);
         sorted_map.put("B", 2);
         sorted_map.put("C", 5);
+        sorted_map.put("A", 6);
+        assert_eq!("[<A,6>, <A,3>, <B,2>, <C,5>]", format!("{}", sorted_map));
+
+        assert_eq!(sorted_map.delete("A"), Some(6));
         assert_eq!("[<A,3>, <B,2>, <C,5>]", format!("{}", sorted_map));
+        assert_eq!(sorted_map.delete("A"), Some(3));
+        assert_eq!("[<B,2>, <C,5>]", format!("{}", sorted_map));
+        assert_eq!(sorted_map.delete("A"), None);
+        assert_eq!("[<B,2>, <C,5>]", format!("{}", sorted_map));
+
+        assert_eq!(sorted_map.delete("B"), Some(2));
+        assert_eq!("[<C,5>]", format!("{}", sorted_map));
+        assert_eq!(sorted_map.delete("B"), None);
+        assert_eq!("[<C,5>]", format!("{}", sorted_map));
+
+        assert_eq!(sorted_map.delete("C"), Some(5));
+        assert_eq!("[]", format!("{}", sorted_map));
+        assert_eq!(sorted_map.delete("C"), None);
+        assert_eq!("[]", format!("{}", sorted_map));
     }
 }
