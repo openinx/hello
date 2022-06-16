@@ -17,7 +17,6 @@ pub struct Node<K, V> {
     forward: Vec<Link<K, V>>,
 }
 
-#[derive(Clone)]
 pub struct Entry<K, V> {
     k: K,
     v: V,
@@ -86,7 +85,7 @@ where
     fn get_prec(&mut self, mut ptr: Link<K, V>, level: usize, k: &K) -> Link<K, V> {
         while let Some(node) = ptr.clone() {
             let mut is_prec = false;
-            match node.borrow().forward[level].clone() {
+            match node.borrow().forward[level].as_ref() {
                 None => is_prec = true,
                 Some(next) if k < next.borrow().key() => {
                     is_prec = true;
