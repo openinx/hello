@@ -257,7 +257,7 @@ mod tests {
 
         let mut rng = rand::thread_rng();
 
-        let max = 1000_00 as usize;
+        let max = 1000_0 as usize;
         let mut data: Vec<usize> = (0..max).collect();
         data.shuffle(&mut rng);
 
