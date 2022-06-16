@@ -439,7 +439,6 @@ mod tests {
                 match iter.next() {
                     None => panic!("We're expected to read more element from the iter."),
                     Some(node) => {
-                        println!("Element: {}", i);
                         assert_eq!(node.k, i);
                         assert_eq!(node.v, i);
                     }

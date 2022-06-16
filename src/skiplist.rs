@@ -1,7 +1,7 @@
-use rand::distributions::uniform::SampleBorrow;
 use rand::Rng;
 use std::cell::RefCell;
-use std::cmp::{max, Ordering};
+use std::cmp::Ordering;
+use std::fmt::Display;
 use std::rc::Rc;
 
 pub struct SkipList<K, V> {
@@ -13,22 +13,46 @@ pub struct SkipList<K, V> {
 type Link<K, V> = Option<Rc<RefCell<Node<K, V>>>>;
 
 pub struct Node<K, V> {
-    k: K,
-    v: V,
+    entry: Option<Entry<K, V>>,
     forward: Vec<Link<K, V>>,
 }
 
-pub struct Iter<'a, K, V> {
-    cur: &'a Link<K, V>,
+#[derive(Clone)]
+pub struct Entry<K, V> {
+    k: K,
+    v: V,
+}
+
+pub struct Iter<K, V> {
+    cur: Link<K, V>,
 }
 
 impl<K, V> Node<K, V> {
-    pub fn new(k: K, v: V, level: usize) -> Self {
-        Node {
-            k,
-            v,
+    pub fn new(k: K, v: V, level: usize) -> Rc<RefCell<Self>> {
+        Rc::new(RefCell::new(Node {
+            entry: Some(Entry { k, v }),
             forward: (0..level).map(|_| None).collect(),
-        }
+        }))
+    }
+
+    // Initialize a dummy node with None entry for the head node.
+    pub fn new_head(level: usize) -> Rc<RefCell<Self>> {
+        Rc::new(RefCell::new(Node {
+            entry: None,
+            forward: (0..level).map(|_| None).collect(),
+        }))
+    }
+
+    pub fn key(&self) -> &K {
+        &self.entry.as_ref().unwrap().k
+    }
+
+    pub fn val(&self) -> &V {
+        &self.entry.as_ref().unwrap().v
+    }
+
+    pub fn resize(&mut self, new_level: usize) {
+        self.forward.resize(new_level, None);
     }
 
     pub fn level(&self) -> usize {
@@ -39,12 +63,13 @@ impl<K, V> Node<K, V> {
 impl<K, V> SkipList<K, V>
 where
     K: Ord,
+    V: Clone, // TODO Find the correct approach in self.get(..) to estimate the Clone trait.
 {
     pub fn new() -> Self {
         SkipList {
             size: 0,
-            level: 0,
-            head: None,
+            level: 1,
+            head: Some(Node::new_head(1)),
         }
     }
 
@@ -58,52 +83,97 @@ where
         std::cmp::min(level, 16)
     }
 
-    fn less_than_next(&self, node: Rc<RefCell<Node<K, V>>>, level: usize, k: &K) -> bool {
-        let mut ptr = node.clone();
-        while let Some(next) = &ptr.borrow().forward[level] {
-            if k < &next.borrow().k {
-                return true;
+    fn get_prec(&mut self, mut ptr: Link<K, V>, level: usize, k: &K) -> Link<K, V> {
+        while let Some(node) = ptr.clone() {
+            let mut is_prec = false;
+            match node.borrow().forward[level].clone() {
+                None => is_prec = true,
+                Some(next) if k < next.borrow().key() => {
+                    is_prec = true;
+                }
+                _ => {}
+            }
+
+            if is_prec {
+                return ptr;
+            } else {
+                ptr = node.borrow().forward[level].clone();
             }
         }
-        return false;
+
+        None
     }
 
-    pub fn insert(&mut self, k: K, v: V) {
-        if self.head.is_none() {
-            self.head = Some(Rc::new(RefCell::new(Node::new(k, v, 1))));
-            self.size += 1;
-            self.level += 1;
-            return;
+    pub fn put(&mut self, k: K, v: V) {
+        let new_level = self.rand_level();
+        let new_node = Node::new(k, v, new_level);
+
+        let mut ptr = self.head.clone();
+        for i in (0..std::cmp::min(self.level, new_level)).rev() {
+            ptr = self.get_prec(ptr, i, &new_node.borrow().key());
+
+            ptr.as_ref().map(|pre_node| {
+                let mut pre_mut_ref = pre_node.borrow_mut();
+                match pre_mut_ref.forward[i].take() {
+                    None => {
+                        pre_mut_ref.forward[i] = Some(new_node.clone());
+                        new_node.borrow_mut().forward[i] = None;
+                    }
+                    Some(next_node) => {
+                        pre_mut_ref.forward[i] = Some(new_node.clone());
+                        new_node.borrow_mut().forward[i] = Some(next_node);
+                    }
+                }
+            });
         }
 
-        // let new_node = Some(Rc::new(RefCell::new(Node::new(k, v, self.rand_level()))));
+        if self.level < new_level {
+            self.head.as_mut().map(|head_node| {
+                let mut head_node_ref = head_node.borrow_mut();
+                head_node_ref.resize(new_level);
+                for i in self.level..new_level {
+                    head_node_ref.forward[i] = Some(new_node.clone());
+                }
+            });
 
-        let mut node = self.head.clone();
+            self.level = new_level;
+        }
+
+        self.size += 1;
+    }
+
+    pub fn get(&self, k: K) -> Option<V> {
+        let mut ptr = self.head.clone();
         for i in (0..self.level).rev() {
-
-            // loop {
-            //     let next_ptr = node.unwrap().borrow().forward[i].clone();
-            //     if next_ptr.is_some() && k >= next_ptr.unwrap().borrow().k {
-            //         node = next_ptr.clone();
-            //     } else {
-            //         break;
-            //     }
-            // }
-
-            // while node.borrow().forward[i]
-
-            // while let Some(cur) = ptr {
-            //     if let Some(next) = &cur.borrow().forward[i] {
-            //         if k < next.borrow().k {
-            //             break;
-            //         }
-            //     }
-            // }
+            // Iterate to find the correct key in the leve-i.
+            while let Some(node) = ptr.clone() {
+                match node.borrow().forward[i].clone() {
+                    None => {
+                        // Don't have more key in this level-i.
+                        break;
+                    }
+                    Some(next) => {
+                        match Ord::cmp(&k, next.borrow().key()) {
+                            Ordering::Less => {
+                                // Cann't find the key in current level! Let's just goto the next level.
+                                break;
+                            }
+                            Ordering::Equal => {
+                                // Find the correct key value in currect level.
+                                return Some(next.borrow().val().clone());
+                            }
+                            Ordering::Greater => {
+                                // Iterate to the next key in current level.
+                                ptr = node.borrow().forward[i].clone();
+                            }
+                        }
+                    }
+                }
+            }
         }
-    }
 
-    pub fn get(&self, k: K) -> Option<&V> {
-        todo!()
+        // The target key is greater than all of the keys in the collection.
+        return None;
     }
 
     pub fn delete(&mut self, k: K) -> Option<V> {
@@ -114,29 +184,122 @@ where
         self.size
     }
 
-    pub fn iter<'a>(&'a self) -> Iter<'a, K, V> {
-        todo!()
+    pub fn peek_front(&self) -> Link<K, V> {
+        match self.head.clone() {
+            None => None,
+            Some(head_node) => head_node.borrow().forward[0].clone(),
+        }
+    }
+
+    pub fn iter(&self) -> Iter<K, V> {
+        return Iter {
+            cur: match self.head.clone() {
+                None => None,
+                Some(head_node) => head_node.borrow().forward[0].clone(),
+            },
+        };
     }
 }
 
-impl<'a, K, V> Iterator for Iter<'a, K, V> {
-    type Item = &'a Node<K, V>;
+impl<K, V> Display for SkipList<K, V>
+where
+    K: Display + Ord,
+    V: Display + Clone,
+{
+    fn fmt(&self, w: &mut std::fmt::Formatter) -> std::result::Result<(), std::fmt::Error> {
+        write!(w, "[")?;
+
+        // Get the first node by skipping the dummy head node.
+        let mut node = self.peek_front();
+
+        while let Some(n) = node {
+            write!(w, "<{},{}>", n.borrow().key(), n.borrow().val())?;
+            node = n.borrow().forward[0].clone();
+            if node.is_some() {
+                write!(w, ", ")?;
+            }
+        }
+        write!(w, "]")
+    }
+}
+
+// TODO Implement a generic Iterator without any cloning ?
+// TODO To be frank, I still don't get the correct approach to handle the lifetime issues
+// TODO by implementing this iterator with zero-copy.
+impl<K, V> Iterator for Iter<K, V>
+where
+    K: Clone,
+    V: Clone,
+{
+    type Item = Entry<K, V>;
 
     fn next(&mut self) -> Option<Self::Item> {
-        todo!()
+        self.cur.take().map(|node| {
+            let t = node.borrow();
+            self.cur = t.forward[0].clone();
+
+            Entry {
+                k: t.key().clone(),
+                v: t.val().clone(),
+            }
+        })
     }
 }
 
 #[cfg(test)]
 mod tests {
-    use rand::Rng;
+    use super::*;
+    use rand::prelude::SliceRandom;
 
     #[test]
     pub fn test_basics() {
+        let mut sorted_map = SkipList::new();
+
         let mut rng = rand::thread_rng();
 
-        for _ in 0..100 {
-            println!("{}", rng.gen::<f32>());
+        let max = 1000_00 as usize;
+        let mut data: Vec<usize> = (0..max).collect();
+        data.shuffle(&mut rng);
+
+        println!("Start get & put");
+
+        for i in 0..max {
+            assert_eq!(sorted_map.get(data[i]), None);
+
+            sorted_map.put(data[i], data[i]);
+
+            assert_eq!(sorted_map.get(data[i]), Some(data[i]));
+            assert_eq!(sorted_map.size(), i + 1);
         }
+
+        println!("Start get all the elements");
+
+        for i in 0..max {
+            assert_eq!(sorted_map.get(data[i]), Some(data[i]));
+        }
+
+        println!("Start to iterate the collection");
+
+        let mut iter = sorted_map.iter();
+        for i in 0..max {
+            match iter.next() {
+                None => panic!("Expected to have more entries."),
+                Some(e) => {
+                    assert_eq!(e.k, i);
+                    assert_eq!(e.v, i);
+                }
+            }
+        }
+    }
+
+    #[test]
+    pub fn test_debug() {
+        let mut sorted_map = SkipList::new();
+        assert_eq!("[]", format!("{}", sorted_map));
+
+        sorted_map.put("A", 3);
+        sorted_map.put("B", 2);
+        sorted_map.put("C", 5);
+        assert_eq!("[<A,3>, <B,2>, <C,5>]", format!("{}", sorted_map));
     }
 }
