@@ -67,6 +67,19 @@ where
         }
     }
 
+    pub fn find(&self, elem: T) -> bool {
+        let mut cur = self.head;
+        while !cur.is_null() {
+            unsafe {
+                if (*cur).elem == elem {
+                    return true;
+                }
+                cur = (*cur).next;
+            }
+        }
+        return false;
+    }
+
     pub fn remove(&mut self, elem: T) -> bool {
         unsafe {
             if self.head.is_null() {
@@ -216,9 +229,10 @@ mod test {
     fn test_remove() {
         let mut list = List::new();
 
-        (0..5).for_each(|i| list.push(i));
-
         {
+            (0..5).for_each(|i| list.push(i));
+            (0..5).for_each(|i| assert_eq!(list.find(i), true));
+
             let mut iter = list.iter();
             assert_eq!(iter.next(), Some(&0));
             assert_eq!(iter.next(), Some(&1));
@@ -228,18 +242,21 @@ mod test {
             assert_eq!(iter.next(), None);
         }
 
-        (0..2).for_each(|i| assert_eq!(list.remove(i), true));
-
         {
+            (0..2).for_each(|i| assert_eq!(list.remove(i), true));
+            (0..2).for_each(|i| assert_eq!(list.find(i), false));
+            (2..5).for_each(|i| assert_eq!(list.find(i), true));
+
             let mut iter = list.iter();
             assert_eq!(iter.next(), Some(&2));
             assert_eq!(iter.next(), Some(&3));
             assert_eq!(iter.next(), Some(&4));
         }
 
-        (2..5).for_each(|i| assert_eq!(list.remove(i), true));
-
         {
+            (2..5).for_each(|i| assert_eq!(list.remove(i), true));
+            (0..5).for_each(|i| assert_eq!(list.find(i), false));
+
             let mut iter = list.iter();
             assert_eq!(iter.next(), None);
         }
