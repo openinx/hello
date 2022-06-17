@@ -10,6 +10,7 @@ mod hash_table;
 mod hash_table_v2;
 mod heapsort;
 mod kmp;
+mod linked_list_unsafe;
 mod linked_list_v1;
 mod linked_list_v2;
 mod linked_list_v3;
@@ -24,7 +25,6 @@ mod simple_tree;
 mod skiplist;
 mod sum;
 mod unsafe_dequeue;
-mod unsafe_queue;
 
 fn main() {
     println!("Hello, world!");

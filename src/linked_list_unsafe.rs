@@ -1,38 +1,42 @@
 use std::ptr;
 
-pub struct List<T> {
+pub struct List<T: Eq> {
     head: Link<T>,
-    tail: *mut Node<T>,
+    tail: Link<T>,
 }
 
 type Link<T> = *mut Node<T>;
 
-struct Node<T> {
+struct Node<T: Eq> {
     elem: T,
     next: Link<T>,
 }
 
-pub struct IntoIter<T>(List<T>);
+pub struct IntoIter<T: Eq>(List<T>);
 
-pub struct Iter<'a, T> {
+pub struct Iter<'a, T: Eq> {
     next: Option<&'a Node<T>>,
 }
 
-pub struct IterMut<'a, T> {
+pub struct IterMut<'a, T: Eq> {
     next: Option<&'a mut Node<T>>,
 }
 
-impl<T> List<T> {
+impl<T> List<T>
+where
+    T: Eq,
+{
     pub fn new() -> Self {
         List {
             head: ptr::null_mut(),
             tail: ptr::null_mut(),
         }
     }
+
     pub fn push(&mut self, elem: T) {
         unsafe {
             let new_tail = Box::into_raw(Box::new(Node {
-                elem: elem,
+                elem,
                 next: ptr::null_mut(),
             }));
 
@@ -45,6 +49,7 @@ impl<T> List<T> {
             self.tail = new_tail;
         }
     }
+
     pub fn pop(&mut self) -> Option<T> {
         unsafe {
             if self.head.is_null() {
@@ -60,6 +65,33 @@ impl<T> List<T> {
                 Some(head.elem)
             }
         }
+    }
+
+    pub fn remove(&mut self, elem: T) -> bool {
+        unsafe {
+            if self.head.is_null() {
+                return false;
+            }
+
+            if (*self.head).elem == elem {
+                self.head = (*self.head).next;
+                return true;
+            }
+
+            let mut prev = self.head;
+            let mut curr = (*self.head).next;
+            while !curr.is_null() {
+                if (*curr).elem == elem {
+                    (*prev).next = (*curr).next;
+                    return true;
+                }
+
+                prev = curr;
+                curr = (*prev).next;
+            }
+        }
+
+        return false;
     }
 
     pub fn peek(&self) -> Option<&T> {
@@ -91,20 +123,26 @@ impl<T> List<T> {
     }
 }
 
-impl<T> Drop for List<T> {
+impl<T: Eq> Drop for List<T> {
     fn drop(&mut self) {
         while let Some(_) = self.pop() {}
     }
 }
 
-impl<T> Iterator for IntoIter<T> {
+impl<T> Iterator for IntoIter<T>
+where
+    T: Eq,
+{
     type Item = T;
     fn next(&mut self) -> Option<Self::Item> {
         self.0.pop()
     }
 }
 
-impl<'a, T> Iterator for Iter<'a, T> {
+impl<'a, T> Iterator for Iter<'a, T>
+where
+    T: Eq,
+{
     type Item = &'a T;
 
     fn next(&mut self) -> Option<Self::Item> {
@@ -117,7 +155,10 @@ impl<'a, T> Iterator for Iter<'a, T> {
     }
 }
 
-impl<'a, T> Iterator for IterMut<'a, T> {
+impl<'a, T> Iterator for IterMut<'a, T>
+where
+    T: Eq,
+{
     type Item = &'a mut T;
 
     fn next(&mut self) -> Option<Self::Item> {
@@ -169,6 +210,39 @@ mod test {
         assert_eq!(list.pop(), Some(6));
         assert_eq!(list.pop(), Some(7));
         assert_eq!(list.pop(), None);
+    }
+
+    #[test]
+    fn test_remove() {
+        let mut list = List::new();
+
+        (0..5).for_each(|i| list.push(i));
+
+        {
+            let mut iter = list.iter();
+            assert_eq!(iter.next(), Some(&0));
+            assert_eq!(iter.next(), Some(&1));
+            assert_eq!(iter.next(), Some(&2));
+            assert_eq!(iter.next(), Some(&3));
+            assert_eq!(iter.next(), Some(&4));
+            assert_eq!(iter.next(), None);
+        }
+
+        (0..2).for_each(|i| assert_eq!(list.remove(i), true));
+
+        {
+            let mut iter = list.iter();
+            assert_eq!(iter.next(), Some(&2));
+            assert_eq!(iter.next(), Some(&3));
+            assert_eq!(iter.next(), Some(&4));
+        }
+
+        (2..5).for_each(|i| assert_eq!(list.remove(i), true));
+
+        {
+            let mut iter = list.iter();
+            assert_eq!(iter.next(), None);
+        }
     }
 
     #[test]
