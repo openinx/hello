@@ -2,11 +2,12 @@ use std::{io, vec};
 
 mod avl_tree;
 mod cmp;
-mod deref_example;
+mod deref_trait;
+mod double_linked_list_unsafe;
 mod double_linked_list_v1;
 mod double_linked_list_v2;
 mod double_linked_list_v3;
-mod hash_table;
+mod hash_table_v1;
 mod hash_table_v2;
 mod heapsort;
 mod kmp;
@@ -19,14 +20,22 @@ mod msort;
 mod prime;
 mod qsort;
 mod ref_cell;
-mod rust_star;
+mod ref_deref;
 mod select_sort;
 mod simple_tree;
 mod skiplist;
 mod sum;
-mod unsafe_dequeue;
 
 fn main() {
+    let mut data = 10;
+    let ref1 = &mut data;
+    let ref2 = &mut *ref1;
+
+    *ref2 += 2;
+    *ref1 += 1;
+
+    println!("{}", data);
+
     println!("Hello, world!");
 
     println!("Sum of 2 + 3 is: {}", sum::sum(2, 3));
@@ -54,7 +63,7 @@ fn main() {
     println!("LinkedList v2 pop() is: {}", list2.pop().unwrap());
     println!("LinkedList v2 is_empty() is: {}", list2.is_empty());
 
-    rust_star::test_start();
+    ref_deref::test_start();
 
     // Prompt
     let mut guess: String = String::new();
