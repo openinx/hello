@@ -39,7 +39,7 @@ __Double Linked List__
 * [Selection Sort](./src/select_sort.rs): Refer to [Selection Sort](https://en.wikipedia.org/wiki/Selection_sort) in wikipedia.
 * [Quick Sort](./src/qsort.rs): Refer to [Quick Sort](https://en.wikipedia.org/wiki/Quicksort) in wikipedia.
 * [Heap Sort](./src/hash_table_v2.rs): Refer to [heap sort](https://en.wikipedia.org/wiki/Heapsort) in wikipedia.
-* [Merge Sort](./src/msort.rs): Refer to [merge sort])(https://en.wikipedia.org/wiki/Merge_sort) in wikipedia.
+* [Merge Sort](./src/msort.rs): Refer to [merge sort](https://en.wikipedia.org/wiki/Merge_sort) in wikipedia.
 
 ### Search
 
