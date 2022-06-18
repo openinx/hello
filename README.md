@@ -18,6 +18,7 @@ cargo test --release
 * [x] [Check Prime](./src/prime.rs): Simple rust code to check whether it's a prime or not.
 * [x] [Compare And Ord](./src/cmp.rs): How to define a comparator for a customized struct or type.
 * [x] [RefCell](./src/ref_cell.rs): Simple example to demonstrate the [RefCell](https://doc.rust-lang.org/std/cell/struct.RefCell.html).
+* [x] [Random](./src/rand.rs): Use external C rand() method to generate the random i32.
 
 ### List, Stack and Queue
 
