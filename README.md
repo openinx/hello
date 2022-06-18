@@ -44,6 +44,8 @@ __Double Linked List__
 
 ### Tree
 
+* [x] [Binary Tree Visitors in Safe Approach](./src/visit_binary_tree_safe.rs).
+* [ ] [Binary Tree Visitors in Unsafe Approach](./src/visit_binary_tree_unsafe.rs).
 * [ ] Disjoint-set: Refer to [wiki](https://en.wikipedia.org/wiki/Disjoint-set_data_structure)
 * [ ] Huffman Tree
 

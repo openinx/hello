@@ -27,6 +27,8 @@ mod select_sort;
 mod simple_tree;
 mod skiplist;
 mod sum;
+mod visit_binary_tree_safe;
+mod visit_binary_tree_unsafe;
 
 fn main() {
     let mut data = 10;
