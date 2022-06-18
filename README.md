@@ -28,18 +28,45 @@ __LinkedList__
 * [x] [Linked List implement by unsafe approach](./src/linked_list_unsafe.rs): A linked list implemented by unsafe approach. Refer to [An Ok Unsafe Singly-Linked Queue](https://rust-unofficial.github.io/too-many-lists/fifth.html#an-ok-unsafe-singly-linked-queue)
 * [x] [Merge Two Sorted Linked List](./src/merge_linkedlist.rs): Merge two sorted linked list in Rust.
 
+### String
+
+* [ ] [Knuth-Morris-Pratt Algorithm](./src/kmp.rs)
+* [ ] Rabin–Karp algorithm: Refer to [Wiki Rabin–Karp algorithm](https://en.wikipedia.org/wiki/Rabin%E2%80%93Karp_algorithm)
+* [ ] Tried Tree
+* [ ] Boyer–Moore String Search Algorithm. [wiki](https://en.wikipedia.org/wiki/Boyer%E2%80%93Moore_string-search_algorithm), [Chinese](https://oi-wiki.org/string/bm/)
+
 __Double Linked List__
 * [x] [Safe Double Linked List V1](./src/double_linked_list_v1.rs): A safe double linked list implemented by `Option`, `Rc`, `RefCell`. Refer to [A Bad but Safe Doubly-Linked Deque](https://rust-unofficial.github.io/too-many-lists/fourth.html).
 * [x] [Safe Double Linked List V2](./src/double_linked_list_v2.rs): Another safe double linked list implementation, still use `Option`, `Rc` and `RefCell`.
 * [x] [A Simple Unsafe Double Linked List](./src/double_linked_list_v3.rs): A simple unsafe double linked list implementation.
 * [x] [A production-ready Unsafe Double Linked List](./src/double_linked_list_unsafe.rs): A production ready unsafe double linked list implementation. Refer to [A Production-Quality Unsafe Doubly-Linked Deque](https://rust-unofficial.github.io/too-many-lists/sixth.html).
 
+### Tree
+
+* [ ] Disjoint-set: Refer to [wiki](https://en.wikipedia.org/wiki/Disjoint-set_data_structure)
+* [ ] Huffman Tree
+
+### Graph
+
+* [ ] Graph: Depth First Search
+* [ ] Graph: Breath First Search
+* [ ] Connected Components in an Undirected Graph
+* [ ] Strongly Connected Components in a Directed Graph
+* [ ] Minimum Cost Spanning Tree: Prim Algorithm
+* [ ] Minimum Cost Spanning Tree: Kruskal Algorithm
+* [ ] Topological Sort in a Directed Acycline Graph
+* [ ] Dijkstra Algorithm
+* [ ] Floyd Algorithm
+
 ### Sort
 
-* [x] [Selection Sort](./src/select_sort.rs): Refer to [Selection Sort](https://en.wikipedia.org/wiki/Selection_sort) in wikipedia.
+* [ ] Insertion Sort
+* [ ] Shell Sort
 * [x] [Quick Sort](./src/qsort.rs): Refer to [Quick Sort](https://en.wikipedia.org/wiki/Quicksort) in wikipedia.
+* [x] [Selection Sort](./src/select_sort.rs): Refer to [Selection Sort](https://en.wikipedia.org/wiki/Selection_sort) in wikipedia.
 * [x] [Heap Sort](./src/hash_table_v2.rs): Refer to [heap sort](https://en.wikipedia.org/wiki/Heapsort) in wikipedia.
 * [x] [Merge Sort](./src/msort.rs): Refer to [merge sort](https://en.wikipedia.org/wiki/Merge_sort) in wikipedia.
+* [ ] Radix Sort
 
 ### Search
 
@@ -48,13 +75,9 @@ __Double Linked List__
 * [x] [Safe Basic Binary Tree](./src/simple_tree.rs): A basic [binary search tree](https://en.wikipedia.org/wiki/Binary_search_tree) which supports binary search, insert, delete, visiting precursor, visiting succesor, finding max, finding min etc.
 * [x] [Safe AVL Tree](./src/avl_tree.rs): Safe [self-balancing binary search tree](https://en.wikipedia.org/wiki/AVL_tree).
 * [x] [Safe Skip List](./src/skiplist.rs): The hard and safe way to implement Safe [Skip List](https://en.wikipedia.org/wiki/Skip_list). Since each node in SkipList will be referenced by both vertical linked list and horizontal linked list, so the `Option<Rc<RefCell<..>>>` is required.
-
-### String
-
-* [] [Knuth-Morris-Pratt Algorithm](./src/kmp.rs): (TODO)
-* [] Rabin–Karp algorithm: (TODO) Refer to [Wiki Rabin–Karp algorithm](https://en.wikipedia.org/wiki/Rabin%E2%80%93Karp_algorithm)
-* [] Tried Tree
+* [ ] In Memory B+ Tree
 
 ### Concurrent Programming
 
-* [] Lockless Unsafe Queue: Refer to [https://zhuanlan.zhihu.com/p/527500869].
+* [ ] Lockless Unsafe Queue: Refer to [https://zhuanlan.zhihu.com/p/527500869].
+* [ ] Lockless Skip List.
