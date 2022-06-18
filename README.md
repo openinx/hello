@@ -29,18 +29,18 @@ __LinkedList__
 * [x] [Linked List implement by unsafe approach](./src/linked_list_unsafe.rs): A linked list implemented by unsafe approach. Refer to [An Ok Unsafe Singly-Linked Queue](https://rust-unofficial.github.io/too-many-lists/fifth.html#an-ok-unsafe-singly-linked-queue)
 * [x] [Merge Two Sorted Linked List](./src/merge_linkedlist.rs): Merge two sorted linked list in Rust.
 
+__Double Linked List__
+* [x] [Safe Double Linked List V1](./src/double_linked_list_v1.rs): A safe double linked list implemented by `Option`, `Rc`, `RefCell`. Refer to [A Bad but Safe Doubly-Linked Deque](https://rust-unofficial.github.io/too-many-lists/fourth.html).
+* [x] [Safe Double Linked List V2](./src/double_linked_list_v2.rs): Another safe double linked list implementation, still use `Option`, `Rc` and `RefCell`.
+* [x] [A Simple Unsafe Double Linked List](./src/double_linked_list_v3.rs): A simple unsafe double linked list implementation.
+* [x] [A production-ready Unsafe Double Linked List](./src/double_linked_list_unsafe.rs): A production ready unsafe double linked list implementation. Refer to [A Production-Quality Unsafe Doubly-Linked Deque](https://rust-unofficial.github.io/too-many-lists/sixth.html).
+
 ### String
 
 * [ ] [Knuth-Morris-Pratt Algorithm](./src/kmp.rs)
 * [ ] Rabin–Karp algorithm: Refer to [Wiki Rabin–Karp algorithm](https://en.wikipedia.org/wiki/Rabin%E2%80%93Karp_algorithm)
 * [ ] Tried Tree
 * [ ] Boyer–Moore String Search Algorithm. [wiki](https://en.wikipedia.org/wiki/Boyer%E2%80%93Moore_string-search_algorithm), [Chinese](https://oi-wiki.org/string/bm/)
-
-__Double Linked List__
-* [x] [Safe Double Linked List V1](./src/double_linked_list_v1.rs): A safe double linked list implemented by `Option`, `Rc`, `RefCell`. Refer to [A Bad but Safe Doubly-Linked Deque](https://rust-unofficial.github.io/too-many-lists/fourth.html).
-* [x] [Safe Double Linked List V2](./src/double_linked_list_v2.rs): Another safe double linked list implementation, still use `Option`, `Rc` and `RefCell`.
-* [x] [A Simple Unsafe Double Linked List](./src/double_linked_list_v3.rs): A simple unsafe double linked list implementation.
-* [x] [A production-ready Unsafe Double Linked List](./src/double_linked_list_unsafe.rs): A production ready unsafe double linked list implementation. Refer to [A Production-Quality Unsafe Doubly-Linked Deque](https://rust-unofficial.github.io/too-many-lists/sixth.html).
 
 ### Tree
 
@@ -61,7 +61,7 @@ __Double Linked List__
 
 ### Sort
 
-* [ ] Insertion Sort
+* [x] [Insertion Sort](./src/insert_sort.rs).
 * [ ] Shell Sort
 * [x] [Quick Sort](./src/qsort.rs): Refer to [Quick Sort](https://en.wikipedia.org/wiki/Quicksort) in wikipedia.
 * [x] [Selection Sort](./src/select_sort.rs): Refer to [Selection Sort](https://en.wikipedia.org/wiki/Selection_sort) in wikipedia.
@@ -80,5 +80,5 @@ __Double Linked List__
 
 ### Concurrent Programming
 
-* [ ] Lockless Unsafe Queue: Refer to [https://zhuanlan.zhihu.com/p/527500869].
+* [ ] Lockless Unsafe Queue: Refer to [Blog](https://zhuanlan.zhihu.com/p/527500869).
 * [ ] Lockless Skip List.
