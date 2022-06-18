@@ -406,16 +406,15 @@ impl<'a, K, V> Iterator for Iter<'a, K, V> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use rand::{prelude::SliceRandom, thread_rng, Rng};
+    use crate::rand;
 
     #[test]
     pub fn test_basics() {
         let mut tree = AVLTree::new();
-        let mut rng = thread_rng();
 
         let max = 1000_000;
         let mut input: Vec<u32> = (0..max).collect();
-        input.shuffle(&mut rng);
+        rand::shuffle(&mut input);
 
         for i in 0..max as usize {
             assert_eq!(tree.insert(input[i], input[i]), true);
@@ -453,10 +452,9 @@ mod tests {
     pub fn test_verify_tree() {
         let max = 1000;
         let mut tree = AVLTree::new();
-        let mut rng = thread_rng();
 
         for _ in 0..max {
-            let x: i32 = rng.gen();
+            let x = rand::gen_i32();
             tree.insert(x, x);
             tree.height();
         }

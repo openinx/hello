@@ -19,6 +19,7 @@ mod merge_linkedlist;
 mod msort;
 mod prime;
 mod qsort;
+mod rand;
 mod ref_cell;
 mod ref_deref;
 mod select_sort;

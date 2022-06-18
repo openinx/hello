@@ -1,4 +1,4 @@
-use rand::Rng;
+use crate::rand;
 use std::cell::RefCell;
 use std::cmp::Ordering;
 use std::fmt::Display;
@@ -74,8 +74,7 @@ where
 
     fn rand_level(&self) -> usize {
         let mut level = 1;
-        let mut rng = rand::thread_rng();
-        while rng.gen::<bool>() {
+        while rand::gen_bool() {
             level += 1;
         }
         // The max level is 16.
@@ -287,17 +286,14 @@ where
 #[cfg(test)]
 mod tests {
     use super::*;
-    use rand::prelude::SliceRandom;
 
     #[test]
     pub fn test_basics() {
         let mut sorted_map = SkipList::new();
 
-        let mut rng = rand::thread_rng();
-
         let max = 1000_0 as usize;
         let mut data: Vec<usize> = (0..max).collect();
-        data.shuffle(&mut rng);
+        rand::shuffle(&mut data);
 
         for i in 0..max {
             assert_eq!(sorted_map.get(data[i]), None);
@@ -327,10 +323,9 @@ mod tests {
     #[test]
     pub fn test_delete() {
         let mut sorted_map = SkipList::new();
-        let mut rng = rand::thread_rng();
         let max = 1000_0 as usize;
         let mut data: Vec<usize> = (0..max).collect();
-        data.shuffle(&mut rng);
+        rand::shuffle(&mut data);
 
         for i in 0..max {
             sorted_map.put(data[i], data[i]);

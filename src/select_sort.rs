@@ -14,7 +14,7 @@ where
 #[cfg(test)]
 mod tests {
     use super::*;
-    use rand::{thread_rng, Rng};
+    use crate::rand;
     use std::time::Instant;
 
     #[test]
@@ -51,11 +51,9 @@ mod tests {
     pub fn test_rng_float_sort() {
         let now = Instant::now();
 
-        let mut rng = thread_rng();
-
         let mut v = [0 as i32; 1000];
         for i in 0..v.len() {
-            v[i] = rng.gen();
+            v[i] = rand::gen_i32();
         }
 
         select_sort(&mut v);
