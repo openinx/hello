@@ -1,8 +1,8 @@
-pub struct Tree<T> {
+pub struct Tree<T: Eq> {
     root: Link<T>,
 }
 
-pub struct Node<T> {
+pub struct Node<T: Eq> {
     elem: T,
     left: Link<T>,
     right: Link<T>,
@@ -10,7 +10,7 @@ pub struct Node<T> {
 
 type Link<T> = Option<Box<Node<T>>>;
 
-trait TreeLink<T> {
+trait TreeLink<T: Eq> {
     fn find_mut(&mut self, elem: &T) -> Option<&mut Link<T>>;
 
     fn prev_visit<'a>(&'a self, order: &mut Vec<&'a T>);
@@ -18,6 +18,8 @@ trait TreeLink<T> {
     fn inorder_visit<'a>(&'a self, order: &mut Vec<&'a T>);
 
     fn post_visit<'a>(&'a self, order: &mut Vec<&'a T>);
+
+    fn drop(&mut self);
 }
 
 impl<T> TreeLink<T> for Link<T>
@@ -25,27 +27,20 @@ where
     T: Eq,
 {
     fn find_mut(&mut self, elem: &T) -> Option<&mut Link<T>> {
-        if self.is_none() {
-            return None;
+        match self {
+            None => return None,
+            Some(node) if node.elem == *elem => {
+                return Some(self);
+            }
+            Some(node) => {
+                let res = node.left.find_mut(elem);
+                if res.is_some() {
+                    return res;
+                }
+
+                node.right.find_mut(elem)
+            }
         }
-
-        if self.as_ref().unwrap().elem == *elem {
-            return Some(self);
-        }
-
-        let mut_node = self.as_mut().unwrap();
-
-        let left_res = mut_node.left.find_mut(elem);
-        if left_res.is_some() {
-            return left_res;
-        }
-
-        let right_res = mut_node.right.find_mut(elem);
-        if right_res.is_some() {
-            return right_res;
-        }
-
-        None
     }
 
     fn prev_visit<'a>(&'a self, order: &mut Vec<&'a T>) {
@@ -70,6 +65,13 @@ where
             node.right.post_visit(order);
             order.push(&node.elem);
         }
+    }
+
+    fn drop(&mut self) {
+        self.as_mut().take().map(|node| {
+            node.left.drop();
+            node.right.drop();
+        });
     }
 }
 
@@ -125,6 +127,15 @@ where
         let mut order: Vec<&T> = Vec::new();
         self.root.post_visit(&mut order);
         return order;
+    }
+}
+
+impl<T> Drop for Tree<T>
+where
+    T: Eq,
+{
+    fn drop(&mut self) {
+        self.root.drop();
     }
 }
 
