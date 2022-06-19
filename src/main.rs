@@ -11,6 +11,7 @@ mod double_linked_list_v3;
 mod hash_table_v1;
 mod hash_table_v2;
 mod heapsort;
+mod huffman_tree;
 mod insert_sort;
 mod kmp;
 mod linked_list_unsafe;
