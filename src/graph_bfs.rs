@@ -1,9 +1,9 @@
-use crate::graph_dfs::{Graph, Node, Link};
+use crate::graph_dfs::{Graph, Link, Node};
 
 fn bfs(g: &Graph) -> Vec<usize> {
     let mut queue = vec![0 as usize; g.node_size];
 
-    let mut result: Vec<usize>= Vec::new();
+    let mut result: Vec<usize> = Vec::new();
     let mut visit = vec![false; g.node_size];
     for id in 0..g.node_size {
         if !visit[id] {
@@ -42,11 +42,11 @@ fn bfs(g: &Graph) -> Vec<usize> {
 }
 
 #[cfg(test)]
-mod tests{
+mod tests {
     use super::*;
 
     #[test]
-    pub fn basics(){
+    pub fn basics() {
         let mut g = Graph::new(10);
 
         g.add_edge(0, 1);
