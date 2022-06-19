@@ -3,6 +3,7 @@ use std::{io, vec};
 mod avl_tree;
 mod cmp;
 mod deref_trait;
+mod disjoint_set;
 mod double_linked_list_unsafe;
 mod double_linked_list_v1;
 mod double_linked_list_v2;
