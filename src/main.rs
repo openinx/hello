@@ -8,6 +8,8 @@ mod double_linked_list_unsafe;
 mod double_linked_list_v1;
 mod double_linked_list_v2;
 mod double_linked_list_v3;
+mod graph_bfs;
+mod graph_dfs;
 mod hash_table_v1;
 mod hash_table_v2;
 mod heapsort;

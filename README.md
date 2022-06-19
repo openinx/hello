@@ -51,8 +51,8 @@ __Double Linked List__
 
 ### Graph
 
-* [ ] Graph: Depth First Search
-* [ ] Graph: Breath First Search
+* [x] [Graph: Depth First Search](./src/graph_dfs.rs)
+* [x] [Graph: Breath First Search](./src/graph_bfs.rs)
 * [ ] Connected Components in an Undirected Graph
 * [ ] Strongly Connected Components in a Directed Graph
 * [ ] Minimum Cost Spanning Tree: Prim Algorithm
