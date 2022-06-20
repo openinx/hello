@@ -1,11 +1,30 @@
 #!/bin/bash
 
-# To assemble the .asm file into hello.o using the
-# Mach-O 64bit object file notation format
+programs=(
+    "hello.asm"
+    "triangle.asm"
+)
 
-nasm -f macho64 hello.asm -o bin/hello.o
+suffix=".asm"
+for prog_file in ${programs[@]} ; do
+    prog=${prog_file%$suffix}
 
-# To link the hello_world.o file and turn it into an
-# executable named ‘hello_world’
+    # To assemble the hello.asm file into hello.o using the
+    # Mach-O 64bit object file notation format.
+    # And to link the hello.o file and turn it into an
+    # executable named ‘hello’
 
-ld -macosx_version_min 10.7.0 -o bin/hello bin/hello.o
+    echo "========================================="
+    echo "   Assemble the program - $prog_file."
+
+    nasm -f macho64 $prog.asm -o bin/$prog.o && ld -o bin/$prog bin/$prog.o
+
+    if [ $? -ne 0 ]; then
+        exit 1
+    else
+        echo "   - $prog_file is okay."
+    fi
+
+    echo "========================================="
+    echo
+done

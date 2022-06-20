@@ -1,5 +1,7 @@
-/target
+/rust/target
+/bin
 /.idea
 *.swp
 *.swo
 *.iml
+*.o
