@@ -1,4 +1,4 @@
-use crate::graph_dfs::{Graph, Link, Node};
+use crate::graph_dfs::Graph;
 
 fn bfs(g: &Graph) -> Vec<usize> {
     let mut queue = vec![0 as usize; g.node_size];

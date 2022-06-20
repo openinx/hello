@@ -349,20 +349,8 @@ where
         succ
     }
 
-    pub fn delete(&mut self, key: K) -> Option<V> {
-        todo!()
-    }
-
     pub fn get(&self, key: K) -> Option<&V> {
         self.root.get(key)
-    }
-
-    pub fn prec(&self, key: K) -> Option<&V> {
-        todo!()
-    }
-
-    pub fn succ(&self, key: K) -> Option<&V> {
-        todo!()
     }
 
     pub fn height(&self) -> usize {
