@@ -78,9 +78,12 @@ __Double Linked List__
 * [x] [Safe Basic Binary Tree](./src/simple_tree.rs): A basic [binary search tree](https://en.wikipedia.org/wiki/Binary_search_tree) which supports binary search, insert, delete, visiting precursor, visiting succesor, finding max, finding min etc.
 * [x] [Safe AVL Tree](./src/avl_tree.rs): Safe [self-balancing binary search tree](https://en.wikipedia.org/wiki/AVL_tree).
 * [x] [Safe Skip List](./src/skiplist.rs): The hard and safe way to implement Safe [Skip List](https://en.wikipedia.org/wiki/Skip_list). Since each node in SkipList will be referenced by both vertical linked list and horizontal linked list, so the `Option<Rc<RefCell<..>>>` is required.
+* [ ] Unsafe Skip List.
 * [ ] In Memory B+ Tree
 
 ### Concurrent Programming
 
 * [ ] Lockless Unsafe Queue: Refer to [Blog](https://zhuanlan.zhihu.com/p/527500869).
 * [ ] Lockless Skip List.
+* [ ] Lock-free HashMap. Refer to [concache](https://github.com/saligrama/concache) and its [paper](https://arxiv.org/pdf/1904.12210.pdf). 
+* [ ] Explore [Crossbeam](https://morestina.net/blog/784/exploring-lock-free-rust-3-crossbeam).
