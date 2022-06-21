@@ -1,5 +1,5 @@
 /rust/target
-/bin
+/assembly/bin
 /.idea
 *.swp
 *.swo
