@@ -38,7 +38,7 @@ __Double Linked List__
 ### String
 
 * [x] [Knuth-Morris-Pratt Algorithm](./src/kmp.rs)
-* [ ] Rabin–Karp algorithm: Refer to [Wiki Rabin–Karp algorithm](https://en.wikipedia.org/wiki/Rabin%E2%80%93Karp_algorithm)
+* [x] Rabin–Karp algorithm: Refer to [Wiki Rabin–Karp algorithm](https://en.wikipedia.org/wiki/Rabin%E2%80%93Karp_algorithm)
 * [ ] Tried Tree
 * [ ] Boyer–Moore String Search Algorithm. [wiki](https://en.wikipedia.org/wiki/Boyer%E2%80%93Moore_string-search_algorithm), [Chinese](https://oi-wiki.org/string/bm/)
 

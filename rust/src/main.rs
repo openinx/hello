@@ -24,6 +24,7 @@ mod merge_linkedlist;
 mod msort;
 mod prime;
 mod qsort;
+mod rabin_karp;
 mod rand;
 mod ref_cell;
 mod ref_deref;
