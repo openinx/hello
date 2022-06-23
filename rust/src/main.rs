@@ -32,6 +32,7 @@ mod select_sort;
 mod simple_tree;
 mod skiplist;
 mod sum;
+mod trie_tree;
 mod visit_binary_tree_safe;
 mod visit_binary_tree_unsafe;
 
