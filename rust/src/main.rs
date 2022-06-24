@@ -31,6 +31,7 @@ mod ref_deref;
 mod select_sort;
 mod simple_tree;
 mod skiplist;
+mod skiplist_unsafe;
 mod sum;
 mod trie_tree;
 mod visit_binary_tree_safe;
