@@ -35,7 +35,10 @@ impl<K, V> Node<K, V> {
     }
 }
 
-impl<K, V> SkipList<K, V> {
+impl<K, V> SkipList<K, V>
+where
+    K: Ord,
+{
     pub fn new() -> Self {
         SkipList {
             size: 0,
@@ -53,24 +56,48 @@ impl<K, V> SkipList<K, V> {
     }
 
     pub fn add(&mut self, k: K, v: V) {
-        let mut ptr = self.head[self.level - 1];
-
         unsafe {
-            for level in (0..self.level).rev() {
-                if !(*ptr).next[level].is_null() {
+            let mut ptr = self.head[self.level - 1];
+            let new_node = Node::new(self.rand_level(), k, v);
+            let min_level = std::cmp::min(new_node.next.len(), self.level);
+
+            for level in (0..min_level).rev() {
+                // Find the correct ptr to link the new node.
+                while !(*ptr).next[level].is_null() {
                     let next = Box::from_raw((*ptr).next[level]);
+                    if new_node.key() < next.key() {
+                        break;
+                    } else {
+                        ptr = next.next[level];
+                    }
                 }
+
+                //*((*ptr).next[level]) = new_node;
             }
         }
-        todo!()
     }
 
     pub fn delete(&mut self, k: K, v: V) {
         todo!()
     }
 
-    pub fn get(&self, k: K) -> Option<&V> {
-        todo!()
+    pub fn get(&self, k: K) -> Option<V> {
+        unsafe {
+            let mut ptr = self.head[self.level - 1];
+            for level in (0..self.level).rev() {
+                while !(*ptr).next[level].is_null() {
+                    let next = Box::from_raw((*ptr).next[level]);
+                    if &k < next.key() {
+                        break;
+                    } else if &k == next.key() {
+                        return Some((*next).entry.unwrap().v);
+                    } else {
+                        ptr = (*ptr).next[level];
+                    }
+                }
+            }
+        }
+        return None;
     }
 }
 
