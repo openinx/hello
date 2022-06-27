@@ -28,15 +28,19 @@ ULake: A Cloud Native Realtime Lakehouse.
     * Great success from Infra software, such as:
         * Public List (2022-06-27)
             * Elastic (Value: $7.3 Billion)
-            * MongoDB (Vaule: $2 Billion)
+            * MongoDB (Vaule: $20 Billion)
             * Confluent (Value: $7 Billion)
             * HashiCorp (Value: $6 Billion)
             * Cloudera (Value: $4.7 Billion)
         * Unlisted
-            * OLTP Database
+            * NewSQL
                 * PingCAP (Value: $3 Billion)
                 * Cockroach Labs (Value: $5 Billion)
                 * [Yugabyte][yugabyte-url] (Value: $1.3 Billion)
+            * NoSQL
+                * Redis (Target: $40~50B in Nasdaq)
+                * [ScyllaDB][scylladb-url] (Raising $25M in series C - 2019)
+                * DataStax - Apache Cassandra (Value: $1.6B)
             * Lakehouse
                 * Databricks (Value: $38 Billion)
                 * Dremio - Drill + Arrow + Nessie + Iceberg (Value: $2 Billion)
@@ -64,7 +68,7 @@ ULake: A Cloud Native Realtime Lakehouse.
         * [Delta][delta-url] : data lake + Data warehouse.
         * Apache Flink: Unified batch stream processing system.
         * Apache Kafka: Queue + Streaming Processing.
-* Realtime.D
+* Realtime.
     * Clickhouse/Doris popular trending.
     * Streaming Database popular trending.
         * [Materialize IO][materialize-url].
@@ -78,6 +82,7 @@ ULake: A Cloud Native Realtime Lakehouse.
         * [Facebook velox][facebook-velox-url].
         * Apache [arrow-ballista][arrow-ballista-url].
 
+[scylladb-url]: https://www.crunchbase.com/organization/scylladb
 [yugabyte-url]: https://www.crunchbase.com/organization/yugabyte
 [startburst-series-d-url]: https://www.starburst.io/blog/starburst-announces-250m-series-d/
 [photon-url]: https://cs.stanford.edu/people/matei/papers/2022/sigmod_photon.pdf
