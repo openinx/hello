@@ -96,7 +96,14 @@ ULake: A Cloud Native Realtime Lakehouse.
 
 
 ## Design
-(TODO)
+
+__Goal.1 Scalable and Cloud Native__: The ulake system can manage unlimited data set successfully in the vendor's object storage services (such as AWS S3, Azure BlobStore, AlibabaCloud OSS), and provides great SLA, latency, durability guarantee.
+
+__Goal.2 Update in subseconds__: The data set can be updated successufly in subseconds, which can meet the requirements of high-thoughtput upserts in columnar files (Such as MySQL CDC ingestion and analysis).
+
+__Goal.3 Integrate both realtime and batch queries in same data set__: All of the data from the table can be flushed into the underlying distributed file system, and be queried and updated as a table format, which can meet the requirement of scalable, high-throughput, cacheless, huge range scan in batch scenorias.
+
+__Goal.4 Friendly to existing data set__: Easier to migrate the existing hive/iceberg/delta tables into the new designed ulake system.
 
 ## Roadmap
 (TODO)
