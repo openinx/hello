@@ -1,6 +1,39 @@
 ULake: A Cloud Native Realtime Lakehouse.
 =========================================
 
+## Problems to solve.
+
+* Batch
+    * key words
+        * huge data set
+        * high-scalibility
+        * slow but stable
+        * hour-level data freshness
+        * great-thoughput
+    * Projects
+        * Hive/Spark
+        * Iceberg
+        * Delta
+        * Hudi
+* Online Services
+    * Basic OLAP
+        * Key words:
+            * Raw data
+            * Tousands of QPS
+            * Minutes data freshness
+            * Subeconds latency
+        * Projects
+            * Clickhouse / Doris
+            * Impala + Iceberg
+    * More Realtime OLAP
+        * Key words:
+            * Subseconds data freshness (Instant visibility)
+            * Subseconds latency
+            * High thoughput
+        * Projects
+            * HBase/Kudu - Update
+            * Druid/Pinot - Time series.
+
 ## Background
 
 * LakeHouse Basic
@@ -133,14 +166,9 @@ __Goal.4 Friendly to existing data set__: Easier to migrate the existing hive/ic
 (TODO)
 
 ### Loaded Table Management.
-
 (TODO)
 
-### User Cases
-
-
 ### Unloaded Table Management.
-
 (TODO)
 
 ## Roadmap
