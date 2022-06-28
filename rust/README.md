@@ -83,7 +83,10 @@ __Double Linked List__
 
 ### Concurrent Programming
 
+* [ ] [The Bw-Tree: A B-Tree for New Hardware Platform][bw-tree-url]
 * [ ] Lockless Unsafe Queue: Refer to [Blog](https://zhuanlan.zhihu.com/p/527500869).
 * [ ] Lockless Skip List.
 * [ ] Lock-free HashMap. Refer to [concache](https://github.com/saligrama/concache) and its [paper](https://arxiv.org/pdf/1904.12210.pdf). 
 * [ ] Explore [Crossbeam](https://morestina.net/blog/784/exploring-lock-free-rust-3-crossbeam).
+
+[bw-tree-url]: https://15721.courses.cs.cmu.edu/spring2017/papers/08-oltpindexes2/bwtree-icde2013.pdf
