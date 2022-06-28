@@ -97,6 +97,8 @@ ULake: A Cloud Native Realtime Lakehouse.
 
 ## Design
 
+### Goals
+
 __Goal.1 Scalable and Cloud Native__: The ulake system can manage unlimited data set successfully in the vendor's object storage services (such as AWS S3, Azure BlobStore, AlibabaCloud OSS), and provides great SLA, latency, durability guarantee.
 
 __Goal.2 Update in subseconds__: The data set can be updated successufly in subseconds, which can meet the requirements of high-thoughtput upserts in columnar files (Such as MySQL CDC ingestion and analysis).
@@ -104,6 +106,42 @@ __Goal.2 Update in subseconds__: The data set can be updated successufly in subs
 __Goal.3 Integrate both realtime and batch queries in same data set__: All of the data from the table can be flushed into the underlying distributed file system, and be queried and updated as a table format, which can meet the requirement of scalable, high-throughput, cacheless, huge range scan in batch scenorias.
 
 __Goal.4 Friendly to existing data set__: Easier to migrate the existing hive/iceberg/delta tables into the new designed ulake system.
+
+### Definitions
+
+* Loaded Table: Provides subseconds data freshness and subsecnods query (include read and write requests) latency from client. All requests from client will be routed to the work nodes in the architecture.
+
+* Unloaded Table: Provides minutes data freshness and seconds query latency. All the requests from client will access the columnar files of table format in the distributed file system.
+
+* Worker: serve the read and write requests from remote rpc clients.
+
+* Coordinator: Manage the all worker nodes in the whole cluster. Such as:
+    * Entrypoint of the requrests to the *Loaded Table*.
+    * Delegate to access the underlying metastore. The metastore implementation can be filesystem impl, key-value impl, or public cloud vender's meta management services (AWS Glue, Open Source Nessie etc).
+    * Mantain the lifecycle of worker nodes:
+        * Add a new worker into the cluster.
+        * Remote a worker from the cluster.
+        * Some workers just failover.
+    * Keep the shard distribution balanced.
+
+### Table Format
+
+#### Primary key table format
+(TODO)
+
+#### Table format without primary key.
+(TODO)
+
+### Loaded Table Management.
+
+(TODO)
+
+### User Cases
+
+
+### Unloaded Table Management.
+
+(TODO)
 
 ## Roadmap
 (TODO)
