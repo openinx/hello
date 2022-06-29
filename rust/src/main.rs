@@ -29,6 +29,7 @@ mod rabin_karp;
 mod rand;
 mod ref_cell;
 mod ref_deref;
+mod segment_tree;
 mod select_sort;
 mod simple_tree;
 mod skiplist;
