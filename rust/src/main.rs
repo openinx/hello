@@ -1,6 +1,7 @@
 use std::{io, vec};
 
 mod avl_tree;
+mod c_n_m;
 mod cmp;
 mod deref_trait;
 mod disjoint_set;
