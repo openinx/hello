@@ -1,6 +1,8 @@
+/cpp/bin
 /rust/target
 /assembly/bin
 /.idea
+/.vscode
 *.swp
 *.swo
 *.iml
