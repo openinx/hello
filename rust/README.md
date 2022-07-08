@@ -20,6 +20,7 @@ cargo test --release
 * [x] [RefCell](./src/ref_cell.rs): Simple example to demonstrate the [RefCell](https://doc.rust-lang.org/std/cell/struct.RefCell.html).
 * [x] [Random](./src/rand.rs): Use external C rand() method to generate the random i32.
 * [x] [Generic C(n,m)](./src/c_n_m.rs): Generic all the permutation for C(n, m) where m <= n
+* [x] ['static](./src/test_static.rs): What's the meaning of `'static` ?
 
 ### List, Stack and Queue
 

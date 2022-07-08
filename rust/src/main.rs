@@ -36,6 +36,7 @@ mod skiplist;
 mod skiplist_unsafe;
 mod sum;
 mod trie_tree;
+mod test_static;
 mod visit_binary_tree_safe;
 mod visit_binary_tree_unsafe;
 
