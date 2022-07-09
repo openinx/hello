@@ -21,6 +21,7 @@ cargo test --release
 * [x] [Random](./src/rand.rs): Use external C rand() method to generate the random i32.
 * [x] [Generic C(n,m)](./src/c_n_m.rs): Generic all the permutation for C(n, m) where m <= n
 * [x] ['static](./src/test_static.rs): What's the meaning of `'static` ?
+* [x] [Macros](./src/test_macros.rs): Macro exercise.
 
 ### List, Stack and Queue
 
