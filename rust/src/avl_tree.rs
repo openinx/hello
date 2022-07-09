@@ -1,5 +1,29 @@
 use std::cmp::Ordering;
 
+macro_rules! left_child {
+    ($node: expr) => {
+        $node.as_ref().unwrap().l
+    };
+}
+
+macro_rules! left_mut_child {
+    ($node: expr) => {
+        $node.as_mut().unwrap().l
+    };
+}
+
+macro_rules! right_child {
+    ($node: expr) => {
+        $node.as_ref().unwrap().r
+    };
+}
+
+macro_rules! right_mut_child {
+    ($node: expr) => {
+        $node.as_mut().unwrap().r
+    };
+}
+
 pub struct AVLTree<K, V> {
     size: usize,
     root: Option<Box<Node<K, V>>>,
@@ -104,63 +128,47 @@ where
     K: Ord,
 {
     fn right_rotate(&mut self) {
-        let mut l_child = self.as_mut().unwrap().l.take();
-        self.as_mut().unwrap().l = l_child.as_mut().unwrap().r.take();
-        l_child.as_mut().unwrap().r = self.take();
+        let mut l_child = left_mut_child!(self).take();
+        left_mut_child!(self) = right_mut_child!(l_child).take();
+        right_mut_child!(l_child) = self.take();
         *self = l_child;
     }
 
     fn left_rotate(&mut self) {
-        let mut r_child = self.as_mut().unwrap().r.take();
-        self.as_mut().unwrap().r = r_child.as_mut().unwrap().l.take();
-        r_child.as_mut().unwrap().l = self.take();
+        let mut r_child = right_mut_child!(self).take();
+        right_mut_child!(self) = left_mut_child!(r_child).take();
+        left_mut_child!(r_child) = self.take();
         *self = r_child;
     }
 
     fn right_balance(&mut self) {
-        let right_child_bf = &self.as_ref().unwrap().r.as_ref().unwrap().bf;
+        let right_child_bf = &right_child!(self).as_ref().unwrap().bf;
         match right_child_bf {
             BF::LeftHigh => {
-                let left_bf_of_r_child = &self
-                    .as_ref()
-                    .unwrap()
-                    .r
-                    .as_ref()
-                    .unwrap()
-                    .l
-                    .as_ref()
-                    .unwrap()
-                    .bf;
+                let left_bf_of_r_child = &left_child!(right_child!(self)).as_ref().unwrap().bf;
                 match left_bf_of_r_child {
                     BF::LeftHigh => {
                         self.as_mut().unwrap().bf = BF::Equal;
-                        self.as_mut().unwrap().r.as_mut().unwrap().bf = BF::RightHigh;
+                        right_mut_child!(self).as_mut().unwrap().bf = BF::RightHigh;
                     }
                     BF::Equal => {
                         self.as_mut().unwrap().bf = BF::Equal;
-                        self.as_mut().unwrap().r.as_mut().unwrap().bf = BF::Equal;
+                        right_mut_child!(self).as_mut().unwrap().bf = BF::Equal;
                     }
                     BF::RightHigh => {
                         self.as_mut().unwrap().bf = BF::LeftHigh;
-                        self.as_mut().unwrap().r.as_mut().unwrap().bf = BF::Equal;
+                        right_mut_child!(self).as_mut().unwrap().bf = BF::Equal;
                     }
                 }
 
-                self.as_mut()
-                    .unwrap()
-                    .r
-                    .as_mut()
-                    .unwrap()
-                    .l
-                    .as_mut()
-                    .unwrap()
-                    .bf = BF::Equal;
-                self.as_mut().unwrap().r.right_rotate();
+                left_mut_child!(right_mut_child!(self)).as_mut().unwrap().bf = BF::Equal;
+
+                right_mut_child!(self).right_rotate();
                 self.left_rotate();
             }
             BF::RightHigh => {
                 self.as_mut().unwrap().bf = BF::Equal;
-                self.as_mut().unwrap().r.as_mut().unwrap().bf = BF::Equal;
+                right_mut_child!(self).as_mut().unwrap().bf = BF::Equal;
                 self.left_rotate();
             }
             _ => {}
@@ -168,49 +176,32 @@ where
     }
 
     fn left_balance(&mut self) {
-        let left_child_bf = &self.as_ref().unwrap().l.as_ref().unwrap().bf;
+        let left_child_bf = &left_child!(self).as_ref().unwrap().bf;
         match left_child_bf {
             BF::LeftHigh => {
                 self.as_mut().unwrap().bf = BF::Equal;
-                self.as_mut().unwrap().l.as_mut().unwrap().bf = BF::Equal;
+                left_mut_child!(self).as_mut().unwrap().bf = BF::Equal;
                 self.right_rotate();
             }
             BF::RightHigh => {
-                let right_bf_of_l_child = &self
-                    .as_ref()
-                    .unwrap()
-                    .l
-                    .as_ref()
-                    .unwrap()
-                    .r
-                    .as_ref()
-                    .unwrap()
-                    .bf;
+                let right_bf_of_l_child = &right_child!(left_child!(self)).as_ref().unwrap().bf;
                 match right_bf_of_l_child {
                     BF::LeftHigh => {
                         self.as_mut().unwrap().bf = BF::RightHigh;
-                        self.as_mut().unwrap().l.as_mut().unwrap().bf = BF::Equal;
+                        left_mut_child!(self).as_mut().unwrap().bf = BF::Equal;
                     }
                     BF::Equal => {
                         self.as_mut().unwrap().bf = BF::Equal;
-                        self.as_mut().unwrap().l.as_mut().unwrap().bf = BF::Equal;
+                        left_mut_child!(self).as_mut().unwrap().bf = BF::Equal;
                     }
                     BF::RightHigh => {
                         self.as_mut().unwrap().bf = BF::Equal;
-                        self.as_mut().unwrap().l.as_mut().unwrap().bf = BF::LeftHigh;
+                        left_mut_child!(self).as_mut().unwrap().bf = BF::LeftHigh;
                     }
                 }
 
-                self.as_mut()
-                    .unwrap()
-                    .l
-                    .as_mut()
-                    .unwrap()
-                    .r
-                    .as_mut()
-                    .unwrap()
-                    .bf = BF::Equal;
-                self.as_mut().unwrap().l.left_rotate();
+                right_mut_child!(left_mut_child!(self)).as_mut().unwrap().bf = BF::Equal;
+                left_mut_child!(self).left_rotate();
                 self.right_rotate();
             }
             _ => {}
@@ -260,7 +251,7 @@ where
         match Ord::cmp(&k, &self.as_ref().unwrap().k) {
             // Case.1: k < *key
             Ordering::Less => {
-                let (inserted, mut taller) = self.as_mut().unwrap().l.add(k, v);
+                let (inserted, mut taller) = left_mut_child!(self).add(k, v);
                 if !inserted {
                     return (false, false);
                 }
@@ -293,7 +284,7 @@ where
 
             // Case.3: k > *key
             Ordering::Greater => {
-                let (inserted, mut taller) = self.as_deref_mut().unwrap().r.add(k, v);
+                let (inserted, mut taller) = right_mut_child!(self).add(k, v);
                 if !inserted {
                     return (false, false);
                 }
