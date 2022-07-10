@@ -23,6 +23,7 @@ mod linked_list_v2;
 mod linked_list_v3;
 mod merge_linkedlist;
 mod msort;
+mod multi_thread;
 mod prime;
 mod qsort;
 mod rabin_karp;
