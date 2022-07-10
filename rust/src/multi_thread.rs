@@ -53,7 +53,7 @@ mod tests {
                         // !!! BE CAREFUL !!!
                         // Move the `MutexGuard` into a separate block to release
                         // the mutex as soon as possible, for not including the thread
-                        // sleep to block other threads.
+                        // sleep into lock context to block other threads.
                         let mut num = clone_count.lock().unwrap();
                         *num += 1;
 
@@ -71,5 +71,57 @@ mod tests {
         }
 
         assert_eq!(100, *count.lock().unwrap());
+    }
+
+    /// Let's create two threads and one print even numbers and another one print old
+    /// numbers. Finally make them sychronize with each other to print the whole 0..n
+    /// sequence.
+    #[test]
+    pub fn even_old_game() {
+        enum State {
+            Even,
+            Old,
+        }
+
+        let result = Arc::new(Mutex::new(Vec::new()));
+
+        let mux = Arc::new(Mutex::new(State::Even));
+
+        let e_mux = mux.clone();
+        let e_result = result.clone();
+        let even = thread::spawn(move || {
+            for num in (0..=100).step_by(2) {
+                loop {
+                    let mut state = e_mux.lock().unwrap();
+                    if matches!(*state, State::Even) {
+                        println!("Even thread print {}", num);
+                        (*e_result.lock().unwrap()).push(num);
+                        *state = State::Old;
+                        break;
+                    }
+                }
+            }
+        });
+
+        let o_mux = mux.clone();
+        let o_result = result.clone();
+        let old = thread::spawn(move || {
+            for num in (1..=100).step_by(2) {
+                loop {
+                    let mut state = o_mux.lock().unwrap();
+                    if matches!(*state, State::Old) {
+                        println!("Old thread print {}", num);
+                        (*o_result.lock().unwrap()).push(num);
+                        *state = State::Even;
+                        break;
+                    }
+                }
+            }
+        });
+
+        even.join().unwrap();
+        old.join().unwrap();
+
+        assert_eq!(*result.lock().unwrap(), Vec::from_iter(0..=100));
     }
 }
