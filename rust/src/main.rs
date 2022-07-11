@@ -21,6 +21,7 @@ mod linked_list_unsafe;
 mod linked_list_v1;
 mod linked_list_v2;
 mod linked_list_v3;
+mod map_reduce;
 mod merge_linkedlist;
 mod msort;
 mod multi_thread;

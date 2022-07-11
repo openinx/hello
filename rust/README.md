@@ -88,6 +88,7 @@ __Double Linked List__
 ### Concurrent Programming
 
 * [x] [Multi Thread Demo](./src/multi_thread.rs)
+* [ ] [A MapReduce Example](./src/map_reduce.rs)
 * [ ] [The Bw-Tree: A B-Tree for New Hardware Platform][bw-tree-url]
 * [ ] Lockless Unsafe Queue: Refer to [Blog](https://zhuanlan.zhihu.com/p/527500869).
 * [ ] Lockless Skip List.
