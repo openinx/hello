@@ -115,12 +115,13 @@ where
         let h = to_bucket_idx(self.buckets.capacity(), &key);
         let mut cur = &mut self.buckets[h];
         loop {
-            if cur.is_none() {
-                return None;
-            } else if cur.as_deref().unwrap().key == key {
-                return Some(cur);
+            match cur {
+                None => return None,
+                Some(node) if node.key == key => return Some(cur),
+                Some(node) => {
+                    cur = &mut node.next;
+                }
             }
-            cur = &mut cur.as_deref_mut().unwrap().next;
         }
     }
 
