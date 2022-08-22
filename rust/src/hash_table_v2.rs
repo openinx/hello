@@ -21,7 +21,7 @@ pub struct Iter<'a, K: Hash, V> {
     cur: &'a Ptr<K, V>, // The current iterator.
 }
 
-fn hash<K: Hash>(bucket_num: usize, key: &K) -> usize {
+fn to_bucket_idx<K: Hash>(bucket_num: usize, key: &K) -> usize {
     let m = bucket_num as i64;
     ((key.hash() % m + m) % m) as usize
 }
@@ -42,29 +42,30 @@ where
     }
 
     fn rehash(&mut self) {
-        let mut buckets: Vec<Ptr<K, V>> = (0..self.bucket_num() << 1).map(|_| None).collect();
+        let new_bucket_num = self.bucket_num() << 1;
+        let mut new_buckets: Vec<Ptr<K, V>> = (0..new_bucket_num).map(|_| None).collect();
         for h in 0..self.bucket_num() {
             let ptr = &mut self.buckets[h];
 
             // Great! Because I've estimated the key and vlaue clone in this body successfully.
             while let Some(node) = ptr.take() {
-                let h = hash(buckets.capacity(), &node.key);
+                let h = to_bucket_idx(new_bucket_num, &node.key);
 
-                buckets[h] = Some(Box::new(Node {
+                new_buckets[h] = Some(Box::new(Node {
                     key: node.key,
                     val: node.val,
-                    next: buckets[h].take(),
+                    next: new_buckets[h].take(),
                 }));
 
                 *ptr = node.next;
             }
         }
 
-        self.buckets = buckets;
+        self.buckets = new_buckets;
     }
 
     pub fn put(&mut self, key: K, val: V) {
-        let h = hash(self.bucket_num(), &key);
+        let h = to_bucket_idx(self.bucket_num(), &key);
 
         let mut cur = &mut self.buckets[h];
         loop {
@@ -99,7 +100,7 @@ where
     }
 
     pub fn get(&self, key: K) -> Option<&V> {
-        let h = hash(self.bucket_num(), &key);
+        let h = to_bucket_idx(self.bucket_num(), &key);
         let mut ptr = &self.buckets[h];
         while let Some(node) = ptr {
             if node.key == key {
@@ -111,7 +112,7 @@ where
     }
 
     pub fn get_mut_ptr(&mut self, key: K) -> Option<&mut Ptr<K, V>> {
-        let h = hash(self.buckets.capacity(), &key);
+        let h = to_bucket_idx(self.buckets.capacity(), &key);
         let mut cur = &mut self.buckets[h];
         loop {
             if cur.is_none() {
