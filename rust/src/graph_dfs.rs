@@ -19,20 +19,51 @@ impl Graph {
     }
 
     pub fn add_edge(&mut self, from: usize, to: usize) {
-        assert!(from < self.links.len());
-        assert!(to < self.links.len());
+        assert!(
+            from < self.node_size,
+            "The edge's from vetex {} is overflow",
+            from
+        );
+        assert!(
+            to < self.node_size,
+            "The edge's to vetex {} is overflow",
+            to
+        );
 
-        match self.links[from].take() {
-            None => {
-                self.links[from] = Some(Box::new(Node { id: to, next: None }));
+        self.links[from] = Some(Box::new(Node {
+            id: to,
+            next: self.links[from].take(),
+        }));
+    }
+
+    fn traverse(&self, id: usize, visit: &mut Vec<bool>, result: &mut Vec<usize>) {
+        assert_eq!(visit[id], true);
+
+        let mut cur = &self.links[id];
+        while let Some(node) = cur {
+            if !visit[node.id] {
+                visit[node.id] = true;
+                result.push(node.id);
+
+                self.traverse(node.id, visit, result);
             }
-            Some(node) => {
-                self.links[from] = Some(Box::new(Node {
-                    id: to,
-                    next: Some(node),
-                }));
+            cur = &node.next;
+        }
+    }
+
+    pub fn dfs(&self) -> Vec<usize> {
+        let mut result: Vec<usize> = Vec::new();
+        let mut visit = vec![false; self.node_size];
+        for id in 0..self.node_size {
+            if !visit[id] {
+                visit[id] = true;
+                result.push(id);
+
+                self.traverse(id, &mut visit, &mut result);
             }
         }
+
+        result
     }
 }
 
@@ -47,39 +78,9 @@ impl Drop for Graph {
     }
 }
 
-fn _dfs(g: &Graph, id: usize, visit: &mut Vec<bool>, result: &mut Vec<usize>) {
-    assert_eq!(visit[id], true);
-
-    let mut cur = &g.links[id];
-    while let Some(node) = cur {
-        if !visit[node.id] {
-            visit[node.id] = true;
-            result.push(node.id);
-
-            _dfs(g, node.id, visit, result);
-        }
-        cur = &node.next;
-    }
-}
-
-fn dfs(g: &Graph) -> Vec<usize> {
-    let mut result: Vec<usize> = Vec::new();
-    let mut visit = vec![false; g.node_size];
-    for id in 0..g.node_size {
-        if !visit[id] {
-            visit[id] = true;
-            result.push(id);
-
-            _dfs(g, id, &mut visit, &mut result);
-        }
-    }
-
-    result
-}
-
 #[cfg(test)]
 mod tests {
-    use super::{dfs, Graph};
+    use super::*;
 
     #[test]
     pub fn basics() {
@@ -93,6 +94,6 @@ mod tests {
         g.add_edge(3, 4);
         g.add_edge(4, 0);
 
-        assert_eq!(dfs(&g), vec![0, 1, 4, 3, 2, 5, 6, 7, 8, 9]);
+        assert_eq!(g.dfs(), vec![0, 1, 4, 3, 2, 5, 6, 7, 8, 9]);
     }
 }
