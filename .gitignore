@@ -7,6 +7,11 @@
 /rust/.vscode
 /cpp/.vscode
 
+# Ignore the uncompressed test data dir, but it include
+# the compressed /testdata/algorithm-and-analysis.tar.gz
+# file.
+/rust/testdata/algorithm-and-analysis
+
 /.idea
 *.swp
 *.swo
