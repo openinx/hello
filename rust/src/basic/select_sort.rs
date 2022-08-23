@@ -14,7 +14,7 @@ where
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::rand;
+    use crate::basic::rand;
     use std::time::Instant;
 
     #[test]

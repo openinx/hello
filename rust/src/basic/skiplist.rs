@@ -1,4 +1,4 @@
-use crate::rand;
+use crate::basic::rand;
 use std::cell::RefCell;
 use std::cmp::Ordering;
 use std::fmt::Display;

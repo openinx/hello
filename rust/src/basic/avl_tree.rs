@@ -385,7 +385,7 @@ impl<'a, K, V> Iterator for Iter<'a, K, V> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::rand;
+    use crate::basic::rand;
 
     #[test]
     pub fn test_basics() {

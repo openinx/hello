@@ -1,6 +1,6 @@
 use std::ptr;
 
-use crate::rand;
+use crate::basic::rand;
 
 pub struct SkipList<K, V> {
     size: usize,

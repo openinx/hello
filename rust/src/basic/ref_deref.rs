@@ -15,7 +15,7 @@ fn edit(num: &mut i32) {
 
 #[cfg(test)]
 mod tests {
-    use crate::ref_deref::edit;
+    use crate::basic::ref_deref::edit;
 
     #[test]
     pub fn basics() {
