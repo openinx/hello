@@ -1,6 +1,6 @@
 use std::{
     fs::File,
-    io::{BufRead, BufReader, Read},
+    io::{BufRead, BufReader, Error, ErrorKind, Read, Result},
     path::PathBuf,
 };
 
@@ -18,39 +18,34 @@ impl FileIO {
         }
     }
 
-    pub fn read_line(&mut self, buf: &mut String) -> usize {
-        self.r.read_line(buf).expect("Failed to read a line")
+    pub fn read_line(&mut self, buf: &mut String) -> Result<usize> {
+        self.r.read_line(buf)
     }
 
-    pub fn read_char(&mut self) -> char {
-        let n = self
-            .r
-            .read(&mut self.buf[0..1])
-            .expect("Failed to read a char");
-        assert_eq!(1, n, "Unexpected read length: {}", n);
-        self.buf[0] as char
+    pub fn read_char(&mut self, v: &mut char) -> Result<usize> {
+        let n = self.r.read(&mut self.buf[0..1])?;
+        *v = self.buf[0] as char;
+        Ok(n)
     }
 
-    pub fn read_u8(&mut self) -> u8 {
-        let n = self
-            .r
-            .read(&mut self.buf[0..1])
-            .expect("Failed to read an u8");
-        assert_eq!(1, n, "Unexpected read length: {}", n);
-        self.buf[0]
+    pub fn read_u8(&mut self, v: &mut u8) -> Result<usize> {
+        let n = self.r.read(&mut self.buf[0..1])?;
+        *v = self.buf[0];
+        Ok(n)
     }
 
-    pub fn read_i32(&mut self) -> i32 {
+    pub fn read_i32(&mut self, v: &mut i32) -> Result<usize> {
         let mut ret = 0;
         let mut is_negative = false;
 
-        let mut c: char;
-        loop {
-            c = self.read_char();
-            if c == '-' || (c >= '0' && c <= '9') {
+        let mut c: char = 0x00 as char;
+        let mut nread = 0;
+
+        while self.read_char(&mut c)? != 0 {
+            nread += 1;
+            if c != ' ' && c != '\n' {
                 break;
             }
-            // Just ignore the unexpected character, and let's continue.
         }
 
         if c == '-' {
@@ -58,12 +53,11 @@ impl FileIO {
         } else if c >= '0' && c <= '9' {
             ret = c as i32 - '0' as i32;
         } else {
-            panic!("Unexpected char: {}", c);
+            return Err(Error::new(ErrorKind::Other, "Unexpected byte"));
         }
 
-        loop {
-            // FIXME: The first non-digit char will be ignored when next read start.
-            let c = self.read_char();
+        while self.read_char(&mut c)? != 0 {
+            nread += 1;
             if c >= '0' && c <= '9' {
                 ret = ret * 10 + (c as i32 - '0' as i32);
             } else {
@@ -71,36 +65,12 @@ impl FileIO {
             }
         }
 
-        if is_negative {
-            -ret
-        } else {
-            ret
-        }
+        *v = if is_negative { -ret } else { ret };
+        Ok(nread)
     }
 
-    pub fn read_u32(&mut self) -> u32 {
-        let mut ret = 0 as u32;
-
-        // Ignore all the non-digit characters.
-        loop {
-            let c = self.read_char();
-            if c >= '0' && c <= '9' {
-                ret = c as u32;
-                break;
-            }
-        }
-
-        loop {
-            // FIXME: The first non-digit char will be ignored when next read start.
-            let c = self.read_char();
-            if c >= '0' && c <= '9' {
-                ret = ret * 10 + (c as u32 - '0' as u32);
-            } else {
-                break;
-            }
-        }
-
-        return ret;
+    pub fn read_u32(&mut self, v: &mut u32) -> Result<usize> {
+        todo!()
     }
 
     pub fn read_i64(&mut self) -> i64 {
@@ -123,21 +93,47 @@ mod tests {
     use std::env;
     use std::fs;
 
+    fn check_io(r: Result<usize>, io_bytes: usize) {
+        match r {
+            Ok(n) => {
+                assert_eq!(n, io_bytes);
+            }
+            Err(e) => {
+                panic!("Unexpected err: {:?}", e)
+            }
+        }
+    }
+
     #[test]
     pub fn basic() {
         let tmp_dir = env::temp_dir();
         let fname = tmp_dir.join(rand::gen_u32().to_string());
 
-        let data = String::from("323 abc 2342");
+        let data = String::from("323 2342 -21 -2147483648   2147483647");
         fs::write(fname.clone(), data.clone()).expect("Failed to write");
 
         let mut io = FileIO::new(fname.clone());
+        let mut c: char = 0x00 as char;
         for i in 0..data.len() {
-            assert_eq!(data.as_bytes()[i] as char, io.read_char());
+            check_io(io.read_char(&mut c), 1);
+            assert_eq!(data.as_bytes()[i] as char, c);
         }
 
         io = FileIO::new(fname.clone());
-        assert_eq!(323, io.read_i32());
-        assert_eq!(2342, io.read_i32());
+        let mut v = 0;
+        check_io(io.read_i32(&mut v), 4);
+        assert_eq!(323, v);
+
+        check_io(io.read_i32(&mut v), 5);
+        assert_eq!(2342, v);
+
+        check_io(io.read_i32(&mut v), 4);
+        assert_eq!(-21, v);
+
+        check_io(io.read_i32(&mut v), 12);
+        assert_eq!(i32::MIN, v);
+
+        check_io(io.read_i32(&mut v), 12);
+        assert_eq!(i32::MAX, v);
     }
 }
