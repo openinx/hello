@@ -1,7 +1,7 @@
 use std::{
     fs::File,
     io::{BufRead, BufReader, Error, ErrorKind, Read, Result},
-    path::PathBuf,
+    path::Path,
 };
 
 pub struct FileIO {
@@ -9,9 +9,20 @@ pub struct FileIO {
     r: BufReader<File>,
 }
 
+#[inline]
+fn is_digit(c: char) -> bool {
+    c >= '0' && c <= '9'
+}
+
+#[inline]
+fn to_digit(c: char) -> u8 {
+    c as u8 - '0' as u8
+}
+
 impl FileIO {
     /// Initialize a FileIO instance.
-    pub fn new(path: PathBuf) -> Self {
+    /// Use the generic `AsRef<Path>` here because it want us to pass &PathBuf here for convenience.
+    pub fn new<P: AsRef<Path>>(path: P) -> Self {
         FileIO {
             buf: vec![0; 1024],
             r: BufReader::new(File::open(path).expect("open failed")),
@@ -50,27 +61,59 @@ impl FileIO {
 
         if c == '-' {
             is_negative = true;
-        } else if c >= '0' && c <= '9' {
-            ret = c as i32 - '0' as i32;
+        } else if is_digit(c) {
+            ret = to_digit(c) as u32;
         } else {
             return Err(Error::new(ErrorKind::Other, "Unexpected byte"));
         }
 
         while self.read_char(&mut c)? != 0 {
             nread += 1;
-            if c >= '0' && c <= '9' {
-                ret = ret * 10 + (c as i32 - '0' as i32);
+            if is_digit(c) {
+                ret = ret * 10 + to_digit(c) as u32;
             } else {
                 break;
             }
         }
 
-        *v = if is_negative { -ret } else { ret };
+        if is_negative {
+            if ret == (1 << 31) {
+                *v = i32::MIN;
+            } else if ret < (1 << 31) {
+                *v = -(ret as i32);
+            } else {
+                panic!("Overflow to convert to i32: {}", ret);
+            }
+        } else {
+            *v = ret as i32;
+        }
+
         Ok(nread)
     }
 
     pub fn read_u32(&mut self, v: &mut u32) -> Result<usize> {
-        todo!()
+        let mut c = 0 as char;
+        let mut nread = 0;
+
+        while self.read_char(&mut c)? != 0 {
+            nread += 1;
+            if c != ' ' && c != '\n' {
+                break;
+            }
+        }
+
+        let mut ret = to_digit(c) as u32;
+        while self.read_char(&mut c)? != 0 {
+            nread += 1;
+            if is_digit(c) {
+                ret = ret * 10 + to_digit(c) as u32;
+            } else {
+                break;
+            }
+        }
+
+        *v = ret;
+        Ok(nread)
     }
 
     pub fn read_i64(&mut self) -> i64 {
@@ -92,6 +135,7 @@ mod tests {
     use crate::basic::rand;
     use std::env;
     use std::fs;
+    use std::path::PathBuf;
 
     fn check_io(r: Result<usize>, io_bytes: usize) {
         match r {
@@ -104,22 +148,59 @@ mod tests {
         }
     }
 
+    fn f_write(s: String) -> Result<PathBuf> {
+        let path = env::temp_dir().join(rand::gen_u32().to_string());
+        fs::write(&path, s)?;
+        Ok(path)
+    }
+
     #[test]
-    pub fn basic() {
-        let tmp_dir = env::temp_dir();
-        let fname = tmp_dir.join(rand::gen_u32().to_string());
+    pub fn read_char() {
+        let data = String::from("abc\n eof\n\nhello world.");
+        let path = f_write(data.clone()).expect("Failed to write");
 
-        let data = String::from("323 2342 -21 -2147483648   2147483647");
-        fs::write(fname.clone(), data.clone()).expect("Failed to write");
-
-        let mut io = FileIO::new(fname.clone());
-        let mut c: char = 0x00 as char;
+        let mut io = FileIO::new(&path);
+        let mut c = 0x00 as char;
         for i in 0..data.len() {
             check_io(io.read_char(&mut c), 1);
             assert_eq!(data.as_bytes()[i] as char, c);
         }
+    }
 
-        io = FileIO::new(fname.clone());
+    #[test]
+    pub fn read_line() {
+        let data = String::from("abc\n eof\n\nhello world.");
+        let path = f_write(data.clone()).expect("Failed to write");
+
+        let mut io = FileIO::new(&path);
+        let mut buf = String::new();
+
+        check_io(io.read_line(&mut buf), 4);
+        assert_eq!(buf, String::from("abc\n"));
+
+        buf.clear();
+        check_io(io.read_line(&mut buf), 5);
+        assert_eq!(buf, String::from(" eof\n"));
+
+        buf.clear();
+        check_io(io.read_line(&mut buf), 1);
+        assert_eq!(buf, String::from("\n"));
+
+        buf.clear();
+        check_io(io.read_line(&mut buf), 12);
+        assert_eq!(buf, String::from("hello world."));
+
+        buf.clear();
+        check_io(io.read_line(&mut buf), 0);
+        assert_eq!(buf, String::from(""));
+    }
+
+    #[test]
+    pub fn read_i32() {
+        let data = String::from("323 2342 -21 -2147483648   2147483647");
+        let path = f_write(data.clone()).expect("Failed to write");
+
+        let mut io = FileIO::new(&path);
         let mut v = 0;
         check_io(io.read_i32(&mut v), 4);
         assert_eq!(323, v);
