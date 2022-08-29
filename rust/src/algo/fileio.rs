@@ -145,8 +145,49 @@ impl FileIO {
         Ok(nread)
     }
 
-    pub fn read_str(&mut self) -> String {
-        todo!()
+    pub fn read_f32(&mut self, v: &mut f32) -> Result<usize> {
+        let mut s = String::new();
+        let nread = self.read_word(&mut s)?;
+        *v = s.parse::<f32>().unwrap();
+        Ok(nread)
+    }
+
+    pub fn read_word(&mut self, v: &mut String) -> Result<usize> {
+        let mut c = 0 as char;
+        let mut nread = 0;
+
+        while self.read_char(&mut c)? != 0 {
+            nread += 1;
+            if c != ' ' && c != '\n' {
+                break;
+            }
+        }
+
+        let mut s = String::new();
+        s.push(c);
+
+        loop {
+            match self.read_char(&mut c) {
+                Err(e) => return Err(e),
+                Ok(n) => {
+                    if n == 0 {
+                        // EOF, read no bytes.
+                        break;
+                    }
+
+                    nread += 1;
+                    if c == ' ' || c == '\n' {
+                        // Read an empty space or blank.
+                        break;
+                    } else {
+                        s.push(c);
+                    }
+                }
+            }
+        }
+
+        *v = s;
+        Ok(nread)
     }
 }
 
@@ -259,5 +300,30 @@ mod tests {
         assert_eq!(2147483647, v);
 
         check_io(io.read_u64(&mut v), 0);
+    }
+
+    #[test]
+    pub fn read_f32() {
+        let data = String::from("1e-1 0.0 -2.122 -3.40282347e+38 3.40282347e+38");
+        let path = f_write(data.clone()).expect("Failed to write");
+
+        let mut io = FileIO::new(&path);
+        let mut v = 0 as f32;
+        check_io(io.read_f32(&mut v), 5);
+        assert_eq!(1e-1, v);
+
+        check_io(io.read_f32(&mut v), 4);
+        assert_eq!(0.0, v);
+
+        check_io(io.read_f32(&mut v), 7);
+        assert_eq!(-2.122, v);
+
+        check_io(io.read_f32(&mut v), 16);
+        assert!((v - f32::MIN).abs() < 1e-3);
+
+        check_io(io.read_f32(&mut v), 14);
+        assert!((v - f32::MAX).abs() < 1e-3);
+
+        check_io(io.read_f32(&mut v), 0);
     }
 }
