@@ -1,5 +1,4 @@
 struct TrieTree {
-    empty_str_count: usize,
     root: Link,
 }
 
@@ -35,62 +34,37 @@ impl Node {
     }
 }
 
-fn add(mut ptr: &mut Link, s: &[u8]) {
-    for i in 0..s.len() {
-        if ptr.is_none() {
-            *ptr = Node::new();
-        }
-
-        if let Some(n) = ptr {
-            if i == s.len() - 1 {
-                n.inc();
-            }
-
-            // Goto the child.
-            ptr = n.child_mut(s[i]);
-        }
-    }
-}
-
-fn find(mut ptr: &Link, s: &[u8]) -> bool {
-    for i in 0..s.len() {
-        match ptr {
-            None => return false,
-            Some(n) => {
-                if i == s.len() - 1 {
-                    return n.count > 0;
-                }
-
-                ptr = n.child(s[i]);
-            }
-        }
-    }
-
-    return false;
-}
-
 impl TrieTree {
     fn new() -> Self {
-        TrieTree {
-            empty_str_count: 0,
-            root: None,
-        }
+        TrieTree { root: Node::new() }
     }
 
     fn add(&mut self, s: &str) {
-        if s.len() == 0 {
-            self.empty_str_count += 1;
-        } else {
-            add(&mut self.root, s.as_bytes());
+        let mut ptr = &mut self.root;
+        let bytes = s.as_bytes();
+
+        for i in 0..bytes.len() {
+            ptr = ptr.as_mut().unwrap().child_mut(bytes[i]);
+            if ptr.is_none() {
+                *ptr = Node::new();
+            }
         }
+
+        ptr.as_mut().unwrap().inc();
     }
 
     fn find(&self, s: &str) -> bool {
-        if s.len() == 0 {
-            return self.empty_str_count > 0;
-        } else {
-            return find(&self.root, s.as_bytes());
+        let mut ptr = &self.root;
+        let bytes = s.as_bytes();
+
+        for i in 0..bytes.len() {
+            ptr = ptr.as_ref().unwrap().child(bytes[i]);
+            if ptr.is_none() {
+                return false;
+            }
         }
+
+        ptr.as_ref().unwrap().count > 0
     }
 }
 
