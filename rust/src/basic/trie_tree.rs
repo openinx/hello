@@ -32,6 +32,16 @@ impl Node {
     fn inc(&mut self) {
         self.count += 1;
     }
+
+    fn dec(&mut self) -> bool {
+        if self.count > 0 {
+            self.count -= 1;
+            // True indicate the string has been removed successfully.
+            true
+        } else {
+            false
+        }
+    }
 }
 
 impl TrieTree {
@@ -51,6 +61,20 @@ impl TrieTree {
         }
 
         ptr.as_mut().unwrap().inc();
+    }
+
+    fn delete(&mut self, s: &str) -> bool {
+        let mut ptr = &mut self.root;
+        let bytes = s.as_bytes();
+
+        for i in 0..bytes.len() {
+            ptr = ptr.as_mut().unwrap().child_mut(bytes[i]);
+            if ptr.is_none() {
+                return false;
+            }
+        }
+
+        ptr.as_mut().unwrap().dec()
     }
 
     fn find(&self, s: &str) -> bool {
@@ -95,5 +119,17 @@ mod tests {
         assert_eq!(tree.find("aaa"), true);
 
         assert_eq!(tree.find("aaab"), false);
+    }
+
+    #[test]
+    pub fn delete() {
+        let mut tree = TrieTree::new();
+        assert_eq!(tree.delete(""), false);
+        tree.add("");
+
+        tree.add("abc");
+        assert_eq!(tree.find("abc"), true);
+        assert_eq!(tree.delete("abc"), true);
+        assert_eq!(tree.find("abc"), false);
     }
 }
