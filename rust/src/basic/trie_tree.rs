@@ -11,11 +11,11 @@ struct Node {
 }
 
 impl Node {
-    fn new() -> Self {
-        Node {
+    fn new() -> Link {
+        Some(Box::new(Node {
             children: (0..26).map(|_| None).collect(),
             count: 0,
-        }
+        }))
     }
 
     fn child(&self, i: u8) -> &Link {
@@ -38,7 +38,7 @@ impl Node {
 fn add(mut ptr: &mut Link, s: &[u8]) {
     for i in 0..s.len() {
         if ptr.is_none() {
-            *ptr = Some(Box::new(Node::new()));
+            *ptr = Node::new();
         }
 
         if let Some(n) = ptr {
