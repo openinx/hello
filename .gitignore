@@ -7,6 +7,10 @@
 /rust/.vscode
 /cpp/.vscode
 
+# Ignore the intellij directories.
+/rust/.idea
+/cpp/.idea
+
 # Ignore the uncompressed test data dir, but it include
 # the compressed /testdata/algorithm-and-analysis.tar.gz
 # file.
