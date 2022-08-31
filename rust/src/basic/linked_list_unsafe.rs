@@ -5,6 +5,7 @@ pub struct List<T: Eq> {
     tail: Link<T>,
 }
 
+/// `*mut` means a raw pointer.
 type Link<T> = *mut Node<T>;
 
 struct Node<T: Eq> {
@@ -33,7 +34,7 @@ where
         }
     }
 
-    pub fn push(&mut self, elem: T) {
+    pub fn push_back(&mut self, elem: T) {
         unsafe {
             let new_tail = Box::into_raw(Box::new(Node {
                 elem,
@@ -41,6 +42,7 @@ where
             }));
 
             if !self.tail.is_null() {
+                // *self.tail to access the entry which raw pointer is pointing to.
                 (*self.tail).next = new_tail;
             } else {
                 self.head = new_tail;
@@ -48,6 +50,10 @@ where
 
             self.tail = new_tail;
         }
+    }
+
+    pub fn push_front(&mut self, elem: T){
+        todo!()
     }
 
     pub fn pop(&mut self) -> Option<T> {
@@ -195,17 +201,17 @@ mod test {
         assert_eq!(list.pop(), None);
 
         // Populate list
-        list.push(1);
-        list.push(2);
-        list.push(3);
+        list.push_back(1);
+        list.push_back(2);
+        list.push_back(3);
 
         // Check normal removal
         assert_eq!(list.pop(), Some(1));
         assert_eq!(list.pop(), Some(2));
 
         // Push some more just to make sure nothing's corrupted
-        list.push(4);
-        list.push(5);
+        list.push_back(4);
+        list.push_back(5);
 
         // Check normal removal
         assert_eq!(list.pop(), Some(3));
@@ -216,8 +222,8 @@ mod test {
         assert_eq!(list.pop(), None);
 
         // Check the exhaustion case fixed the pointer right
-        list.push(6);
-        list.push(7);
+        list.push_back(6);
+        list.push_back(7);
 
         // Check normal removal
         assert_eq!(list.pop(), Some(6));
@@ -230,7 +236,7 @@ mod test {
         let mut list = List::new();
 
         {
-            (0..5).for_each(|i| list.push(i));
+            (0..5).for_each(|i| list.push_back(i));
             (0..5).for_each(|i| assert_eq!(list.find(i), true));
 
             let mut iter = list.iter();
@@ -265,9 +271,9 @@ mod test {
     #[test]
     fn into_iter() {
         let mut list = List::new();
-        list.push(1);
-        list.push(2);
-        list.push(3);
+        list.push_back(1);
+        list.push_back(2);
+        list.push_back(3);
 
         let mut iter = list.into_iter();
         assert_eq!(iter.next(), Some(1));
@@ -279,9 +285,9 @@ mod test {
     #[test]
     fn iter() {
         let mut list = List::new();
-        list.push(1);
-        list.push(2);
-        list.push(3);
+        list.push_back(1);
+        list.push_back(2);
+        list.push_back(3);
 
         let mut iter = list.iter();
         assert_eq!(iter.next(), Some(&1));
@@ -293,9 +299,9 @@ mod test {
     #[test]
     fn iter_mut() {
         let mut list = List::new();
-        list.push(1);
-        list.push(2);
-        list.push(3);
+        list.push_back(1);
+        list.push_back(2);
+        list.push_back(3);
 
         let mut iter = list.iter_mut();
         assert_eq!(iter.next(), Some(&mut 1));
@@ -308,17 +314,17 @@ mod test {
     fn miri_food() {
         let mut list = List::new();
 
-        list.push(1);
-        list.push(2);
-        list.push(3);
+        list.push_back(1);
+        list.push_back(2);
+        list.push_back(3);
 
         assert!(list.pop() == Some(1));
-        list.push(4);
+        list.push_back(4);
         assert!(list.pop() == Some(2));
-        list.push(5);
+        list.push_back(5);
 
         assert!(list.peek() == Some(&3));
-        list.push(6);
+        list.push_back(6);
         list.peek_mut().map(|x| *x *= 10);
         assert!(list.peek() == Some(&30));
         assert!(list.pop() == Some(30));
@@ -337,7 +343,7 @@ mod test {
         assert!(list.pop() == Some(400));
         list.peek_mut().map(|x| *x *= 10);
         assert!(list.peek() == Some(&5000));
-        list.push(7);
+        list.push_back(7);
 
         // Drop it on the ground and let the dtor exercise itself
     }
