@@ -53,7 +53,20 @@ where
     }
 
     pub fn push_front(&mut self, elem: T) {
-        todo!()
+        unsafe {
+            let new_head = Box::into_raw(Box::new(Node {
+                elem,
+                next: ptr::null_mut(),
+            }));
+
+            if self.head.is_null() {
+                self.head = new_head;
+                self.tail = new_head;
+            } else {
+                (*new_head).next = self.head;
+                self.head = new_head;
+            }
+        }
     }
 
     pub fn pop(&mut self) -> Option<T> {
@@ -329,6 +342,21 @@ mod test {
         let mut iter = list.into_iter();
         assert_eq!(iter.next(), Some(1));
         assert_eq!(iter.next(), Some(2));
+        assert_eq!(iter.next(), Some(3));
+        assert_eq!(iter.next(), None);
+    }
+
+    #[test]
+    fn test_push_front() {
+        let mut list = List::new();
+
+        list.push_front(1);
+        list.push_front(2);
+        list.push_back(3);
+
+        let mut iter = list.into_iter();
+        assert_eq!(iter.next(), Some(2));
+        assert_eq!(iter.next(), Some(1));
         assert_eq!(iter.next(), Some(3));
         assert_eq!(iter.next(), None);
     }
