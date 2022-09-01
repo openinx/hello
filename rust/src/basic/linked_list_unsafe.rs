@@ -52,7 +52,7 @@ where
         }
     }
 
-    pub fn push_front(&mut self, elem: T){
+    pub fn push_front(&mut self, elem: T) {
         todo!()
     }
 
@@ -93,20 +93,32 @@ where
             }
 
             if (*self.head).elem == elem {
-                self.head = (*self.head).next;
+                let next = (*self.head).next;
+                self.head = next;
+
+                if next.is_null() {
+                    // Only one node where both head and tail are pointing to.
+                    self.tail = next;
+                }
                 return true;
             }
 
             let mut prev = self.head;
-            let mut curr = (*self.head).next;
-            while !curr.is_null() {
-                if (*curr).elem == elem {
-                    (*prev).next = (*curr).next;
+            let mut cur = (*prev).next;
+            while !cur.is_null() {
+                if (*cur).elem == elem {
+                    let next = (*cur).next;
+                    (*prev).next = next;
+
+                    if next.is_null() {
+                        // The removing node is the one that tail is pointing to.
+                        self.tail = prev;
+                    }
                     return true;
                 }
 
-                prev = curr;
-                curr = (*prev).next;
+                prev = cur;
+                cur = (*prev).next;
             }
         }
 
@@ -266,6 +278,45 @@ mod test {
             let mut iter = list.iter();
             assert_eq!(iter.next(), None);
         }
+    }
+
+    #[test]
+    fn test_remove_tail() {
+        let mut list = List::new();
+        list.push_back(1);
+        list.push_back(2);
+
+        assert_eq!(true, list.remove(2));
+        assert_eq!(true, list.find(1));
+        assert_eq!(false, list.find(2));
+
+        list.push_back(3);
+        assert_eq!(true, list.find(3));
+
+        assert_eq!(true, list.remove(3));
+        assert_eq!(true, list.find(1));
+        assert_eq!(false, list.find(2));
+        assert_eq!(false, list.find(3));
+
+        assert_eq!(true, list.remove(1));
+        assert_eq!(false, list.find(1));
+        assert_eq!(false, list.find(2));
+        assert_eq!(false, list.find(3));
+    }
+
+    #[test]
+    fn test_remove_head() {
+        let mut list = List::new();
+        list.push_back(1);
+        list.push_back(2);
+
+        assert_eq!(true, list.remove(1));
+        assert_eq!(false, list.find(1));
+        assert_eq!(true, list.find(2));
+
+        assert_eq!(true, list.remove(2));
+        assert_eq!(false, list.find(1));
+        assert_eq!(false, list.find(2));
     }
 
     #[test]
