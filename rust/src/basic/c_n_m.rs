@@ -21,21 +21,21 @@ fn generate(v: &mut Vec<bool>, start_index: usize, remaining: usize) -> u32 {
         res += generate(v, i + 1, remaining - 1);
         v[i] = false;
     }
-    return res;
+    res
 }
 
 fn c(n: usize, m: usize) -> u32 {
     let mut v = vec![false; n];
-    return generate(&mut v, 0, m);
+    generate(&mut v, 0, m)
 }
 
 fn calc(n: usize, m: usize) -> u32 {
-    let mut res = 1 as u32;
+    let mut res = 1u32;
     for i in 1..=m {
         res *= (n + 1 - i) as u32;
         res /= i as u32;
     }
-    return res;
+    res
 }
 
 #[cfg(test)]
