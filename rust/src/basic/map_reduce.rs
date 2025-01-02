@@ -52,14 +52,7 @@ trait Reduce {
 
 #[cfg(test)]
 mod tests {
-    use super::*;
-
     #[test]
     pub fn word_count() {
-        let mut words = vec![
-            "hello", "world", "hello", "thanks", "world", "thanks", "world",
-        ];
-
-        let mut mr = MapReduce::new(words);
     }
 }
