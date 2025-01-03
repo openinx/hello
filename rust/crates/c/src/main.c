@@ -6,6 +6,12 @@
 int main(){
     print_hello_from_rust();
 
+    // Test state_to_i32
+    assert(state_to_i32(New) == 0);
+    assert(state_to_i32(Init) == 1);
+    assert(state_to_i32(Running) == 2);
+    assert(state_to_i32(Done) == 4);
+
     // Test c_str_len
     char *str = "hello world";
     assert(strlen(str) == c_str_len(str));

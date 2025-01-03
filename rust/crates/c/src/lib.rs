@@ -16,6 +16,16 @@ pub enum State {
 }
 
 #[no_mangle]
+pub extern "C" fn state_to_i32(state: State) -> i32 {
+    match state {
+        State::New => 0,
+        State::Init => 1,
+        State::Running => 2,
+        State::Done => 4,
+    }
+}
+
+#[no_mangle]
 pub extern "C" fn c_str_len(str: *const c_char) -> i32 {
     if str.is_null() {
         return -1;
