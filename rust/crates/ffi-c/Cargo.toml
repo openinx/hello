@@ -3,4 +3,8 @@ name = "ffi-c"
 version = "0.1.0"
 edition = "2021"
 
+[lib]
+name = "ffi_c"
+crate-type = ["staticlib", "cdylib"]
+
 [dependencies]
