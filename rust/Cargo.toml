@@ -1,8 +1,13 @@
-[package]
-name = "hello_world"
-version = "0.1.0"
-edition = "2021"
+[workspace]
+members = [
+    "crates/*",
+]
+default-members = [
+    "crates/*"
+]
+resolver = "2"
 
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
-
-[dependencies]
+[workspace.dependencies]
+# Own crates
+algorithm = { path = "crates/algorithm" }
+ffi-c = { path = "crates/ffi-c" }

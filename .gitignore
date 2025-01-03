@@ -1,5 +1,5 @@
 /cpp/bin
-/rust/target
+*/target/**
 /assembly/bin
 
 # Ignore the .vscode directories.
