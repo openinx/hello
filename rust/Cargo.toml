@@ -10,4 +10,4 @@ resolver = "2"
 [workspace.dependencies]
 # Own crates
 algorithm = { path = "crates/algorithm" }
-ffi-c = { path = "crates/ffi-c" }
+ffi-c = { path = "crates/c" }

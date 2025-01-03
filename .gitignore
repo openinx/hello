@@ -1,5 +1,5 @@
 /cpp/bin
-*/target/**
+**/target/
 /assembly/bin
 
 # Ignore the .vscode directories.
