@@ -1,17 +1,15 @@
-#include "stdint.h"
+#include <stdarg.h>
+#include <stdbool.h>
+#include <stdint.h>
+#include <stdlib.h>
 
-void print_hello_from_rust();
+typedef struct CString {
+  const char *str;
+  uint32_t len;
+} CString;
 
-static const uint32_t C_NEW = 0;
-static const uint32_t C_INIT = 1;
-static const uint32_t C_RUNNING = 2;
-static const uint32_t C_DONE = 3;
+void print_hello_from_rust(void);
 
-int32_t c_str_len(char *str);
+int32_t c_str_len(const char *str);
 
-typedef struct CString{
-    char *str;
-    uint32_t len;
-}CString;
-
-int32_t cstring_len(CString *cstr);
+int32_t cstring_len(const struct CString *cstr);
