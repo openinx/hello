@@ -2,10 +2,18 @@
 
 use std::ffi::{c_char, CStr};
 
+//
+// C API: 'print_hello_from_rust'
+//
+
 #[no_mangle]
 pub extern "C" fn print_hello_from_rust() {
     println!("Hello from Rust");
 }
+
+//
+// C API: 'state_to_i32'
+//
 
 #[repr(C)]
 pub enum State {
@@ -25,6 +33,10 @@ pub extern "C" fn state_to_i32(state: State) -> i32 {
     }
 }
 
+//
+// C API: 'c_str_len'
+//
+
 #[no_mangle]
 pub extern "C" fn c_str_len(str: *const c_char) -> i32 {
     if str.is_null() {
@@ -37,6 +49,10 @@ pub extern "C" fn c_str_len(str: *const c_char) -> i32 {
         Err(_) => -1,
     }
 }
+
+//
+// C API: 'cstring_len'
+//
 
 #[repr(C)]
 pub struct CString {
