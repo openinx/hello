@@ -21,3 +21,4 @@
 *.swo
 *.iml
 *.o
+**/Cargo.lock
