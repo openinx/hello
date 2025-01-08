@@ -111,22 +111,22 @@ where
         });
     }
 
-    pub fn pre_visit<'a>(&'a self) -> Vec<&'a T> {
+    pub fn pre_visit(&self) -> Vec<&T> {
         let mut order: Vec<&T> = Vec::new();
         self.root.prev_visit(&mut order);
-        return order;
+        order
     }
 
-    pub fn inorder_visit<'a>(&'a self) -> Vec<&'a T> {
+    pub fn inorder_visit(&self) -> Vec<&T> {
         let mut order: Vec<&T> = Vec::new();
         self.root.inorder_visit(&mut order);
-        return order;
+        order
     }
 
-    pub fn post_visit<'a>(&'a self) -> Vec<&'a T> {
+    pub fn post_visit(&self) -> Vec<&T> {
         let mut order: Vec<&T> = Vec::new();
         self.root.post_visit(&mut order);
-        return order;
+        order
     }
 }
 
