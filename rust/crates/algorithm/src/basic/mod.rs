@@ -40,3 +40,4 @@ pub mod test_static;
 pub mod trie_tree;
 pub mod visit_binary_tree_safe;
 pub mod visit_binary_tree_unsafe;
+mod explicit_lifetime;
