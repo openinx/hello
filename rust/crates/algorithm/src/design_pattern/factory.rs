@@ -46,7 +46,8 @@ impl ObjectStore for TosStore {
 }
 
 mod tests {
-    
+    use super::*;
+
     #[test]
     pub fn test_object_store_factory() {
         let factory = ObjectStoreFactory::new();

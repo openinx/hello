@@ -17,7 +17,8 @@ fn failed_borrow<'a>() {
 }
 
 mod tests {
-    
+    use super::*;
+
     #[test]
     fn test() {
         // Create variables to be borrowed below.
